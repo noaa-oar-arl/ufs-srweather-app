@@ -73,10 +73,10 @@ cpl_aqm_parm:
   AQM_BIO_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/aqm/bio
   AQM_BIO_FILE: BEIS_RRFScmaq_C775.ncf
   DO_AQM_FENGSHA: false
-  AQM_FENGSHA_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/FENGSHA
+  AQM_FENGSHA_DIR: /scratch1/RDARCH/rda-arl-gpu/Barry.Baker/emissions/nexus/FENGSHA/Online_CMAQ
   AQM_FENGSHA_FILE_PREFIX: FENGSHA_p8_10km_inputs
   AQM_FENGSHA_FILE_SUFFIX: .nc
-  DO_AQM_CANOPY: true
+  DO_AQM_CANOPY: false
   AQM_CANOPY_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/canopy
   AQM_CANOPY_FILE: gfs.t12z.geo
   AQM_CANOPY_FILE_SUFFIX: .canopy_regrid.nc
@@ -90,6 +90,7 @@ cpl_aqm_parm:
   NEXUS_INPUT_DIR: /scratch2/NCEPDEV/naqfc/Jianping.Huang/emissions/nexus
   NEXUS_FIX_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/nexus/fix
   NEXUS_GRID_FN: grid_spec_793.nc
+  NUM_SPLIT_NEXUS: 1
   PT_SRC_BASE_DIR_CONUS: /scratch1/RDARCH/rda-arl-gpu/YouHua.Tang/nei2016v1-pt/12US1
   PT_SRC_BASE_DIR_HI: /scratch1/RDARCH/rda-arl-gpu/YouHua.Tang/nei2016v1-pt/3HI1
   PT_SRC_BASE_DIR_AK: /scratch1/RDARCH/rda-arl-gpu/YouHua.Tang/nei2016v1-pt/9AK1

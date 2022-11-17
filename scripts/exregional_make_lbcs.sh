@@ -7,8 +7,8 @@
 #
 #-----------------------------------------------------------------------
 #
-. ${GLOBAL_VAR_DEFNS_FP}
 . $USHdir/source_util_funcs.sh
+source_config_for_task "task_make_lbcs|task_get_extrn_lbcs" ${GLOBAL_VAR_DEFNS_FP}
 #
 #-----------------------------------------------------------------------
 #
@@ -84,7 +84,7 @@ fi
 #-----------------------------------------------------------------------
 #
 if [ $RUN_ENVIR = "nco" ]; then
-    extrn_mdl_staging_dir="${COMIN}/for_LBCS"
+    extrn_mdl_staging_dir="${COMINext}"
     extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${NET}.${cycle}.${EXTRN_MDL_NAME_LBCS}.LBCS.${EXTRN_MDL_VAR_DEFNS_FN}.sh"
 else
     extrn_mdl_staging_dir="${COMIN}/${EXTRN_MDL_NAME_LBCS}/for_LBCS"
@@ -496,16 +496,6 @@ located in the following directory:
   mv_vrfy gfs.bndy.nc ${INPUT_DATA}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile7.f${fcst_hhh_FV3LAM}.nc
 
 done
-#
-#-----------------------------------------------------------------------
-#
-# Clean up the external model data files in NCO mode
-#
-#-----------------------------------------------------------------------
-#
-if [ "${RUN_ENVIR}" = "nco" ]; then
-  rm_vrfy -rf ${extrn_mdl_staging_dir}
-fi
 #
 #-----------------------------------------------------------------------
 #
