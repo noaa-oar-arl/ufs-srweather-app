@@ -1,5 +1,5 @@
 metadata:
-  description: config for Online-CMAQ, GSD_HRRR_25km, NCO mode, 6hr forecast, 2cycles a day, on WCOSS2
+  description: config for Online-CMAQ, GSD_HRRR_25km, NCO mode, 6h/12h forecast, 4cycles a day, on WCOSS2
 user:
   RUN_ENVIR: nco
   MACHINE: wcoss2
@@ -9,27 +9,31 @@ workflow:
   CRON_RELAUNCH_INTVL_MNTS: 3
 #  EXPT_BASEDIR: /lfs/h2/emc/lam/noscrub/chan-hoo.jeon/expt_dirs
   EXPT_SUBDIR: aqm_nco_hrrr25_1d2cyc
-  CCPP_PHYS_SUITE: FV3_GFS_v15p2
+  PREDEF_GRID_NAME: GSD_HRRR_25km
+  CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2019080500'
-  DATE_LAST_CYCL: '2019080506'
+  DATE_LAST_CYCL: '2019080518'
   INCR_CYCL_FREQ: 6
-  FCST_LEN_HRS: 12
+  FCST_LEN_HRS: -1
+  FCST_LEN_CYCL:
+    - 6
+    - 12
   PREEXISTING_DIR_METHOD: rename
   VERBOSE: true
   COMPILER: intel
-  DIAG_TABLE_TMPL_FN: diag_table_aqm
-  FIELD_TABLE_TMPL_FN: field_table_aqm
+  DIAG_TABLE_TMPL_FN: diag_table_aqm.FV3_GFS_v16
+  FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
 nco:
   envir: prod
   NET: aqm
   model_ver: v7.0
   RUN: aqm_test
-  OPSROOT: /lfs/h2/emc/lam/noscrub/chan-hoo.jeon/NCO_OUTPUT
+#  OPSROOT: /lfs/h2/emc/lam/noscrub/chan-hoo.jeon/NCO_OUTPUT
 workflow_switches:
   RUN_TASK_MAKE_GRID: false
   RUN_TASK_MAKE_OROG: false
   RUN_TASK_MAKE_SFC_CLIMO: false
-  RUN_TASK_RUN_POST: true
+  RUN_TASK_RUN_POST: false
 task_make_grid:
   GRID_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/DOMAIN_DATA/GSD_HRRR_25km
 task_make_orog:
@@ -50,7 +54,6 @@ task_run_fcst:
   WTIME_RUN_FCST: 00:30:00
   QUILTING: true
   PRINT_ESMF: false
-  PREDEF_GRID_NAME: GSD_HRRR_25km
 global:
   DO_ENSEMBLE: false
   NUM_ENS_MEMBERS: 2
@@ -60,31 +63,35 @@ cpl_aqm_parm:
   CPL_AQM: true
   RUN_TASK_AQM_ICS: true
   RUN_TASK_AQM_LBCS: true
+  RUN_TASK_NEXUS_GFS_SFC: false
   RUN_TASK_NEXUS_EMISSION: true
+  RUN_TASK_FIRE_EMISSION: true
   RUN_TASK_POINT_SOURCE: true
-  RUN_TASK_POST_STAT: false
+  RUN_TASK_PRE_POST_STAT: false
+  RUN_TASK_POST_STAT_O3: false
+  RUN_TASK_POST_STAT_PM25: false
+  RUN_TASK_BIAS_CORRECTION_O3: false
+  RUN_TASK_BIAS_CORRECTION_PM25: false
   NNODES_NEXUS_EMISSION: 2
   PPN_NEXUS_EMISSION: 40
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   AQM_GEFS_CYC: 0
-  AQM_RC_TMPL_FN: aqm.rc
   AQM_CONFIG_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/aqm/epa/data
   AQM_BIO_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/aqm/bio
   AQM_BIO_FILE: BEIS_SARC401.ncf
-  DO_AQM_FENGSHA: false
+  DO_AQM_DUST: false
   DO_AQM_CANOPY: false
   AQM_FIRE_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C401/Reprocessed
-  AQM_FIRE_FILE: GBBEPx_C401GRID.emissions_v003
+  AQM_FIRE_FILE_PREFIX: GBBEPx_C401GRID.emissions_v003
   AQM_FIRE_FILE_SUFFIX: .nc
   AQM_RC_FIRE_FREQUENCY: static
+  DO_AQM_PRODUCT: true
   AQM_LBCS_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/LBCS/boundary_conditions_v4
   AQM_LBCS_FILES: gfs_bndy_chem_<MM>.tile7.000.nc
   AQM_GEFS_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/GEFS_aerosol
   NEXUS_INPUT_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/nexus_emissions
   NEXUS_FIX_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/nexus/fix
   NEXUS_GRID_FN: grid_spec_GSD_HRRR_25km.nc
-  NUM_SPLIT_NEXUS: 1
-  PT_SRC_BASE_DIR_CONUS: /lfs/h2/emc/physics/noscrub/Youhua.Tang/nei2016v1-pt/12US1
-  PT_SRC_BASE_DIR_HI: /lfs/h2/emc/physics/noscrub/Youhua.Tang/nei2016v1-pt/3HI1
-  PT_SRC_BASE_DIR_AK: /lfs/h2/emc/physics/noscrub/Youhua.Tang/nei2016v1-pt/9AK1
+  NUM_SPLIT_NEXUS: 3
+

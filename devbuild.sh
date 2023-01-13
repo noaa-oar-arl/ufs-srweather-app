@@ -68,7 +68,6 @@ cat << EOF_SETTINGS
 Settings:
 
   SRW_DIR=${SRW_DIR}
-  BIN_DIR=${BIN_DIR}
   BUILD_DIR=${BUILD_DIR}
   INSTALL_DIR=${INSTALL_DIR}
   BIN_DIR=${BIN_DIR}
@@ -249,28 +248,43 @@ if [ "${VERBOSE}" = true ] ; then
   settings
 fi
 
-# Check out external components for Online-CMAQ =============================
+# Check out external components ===============================================
 if [ "${APPLICATION}" = "ATMAQ" ]; then
   if [ -d "${SRW_DIR}/sorc/arl_nexus" ]; then
-    printf "Extra external components already exist. This step will be skipped.\n"
-  else  
-    printf "... Checking out extra components for Online-CMAQ ...\n"
-
-    printf "... Replace ufs-weather-model ...\n"
-    rm -rf "${SRW_DIR}/sorc/ufs-weather-model"
-
-    ./manage_externals/checkout_externals -e externals/Externals_AQM.cfg
-
-    if [ "${CANOPY}" = true ]; then
-      printf "... Replace ufs-weather-model with the canopy version ...\n"
+    printf "!!! Extra external components already exist. This step is skipped.\n"
+  else
+    if [ -d "${SRW_DIR}/sorc/gsi" ]; then
+      printf "!!! FV3-LAM components exist. The existing components are removed.\n"
       rm -rf "${SRW_DIR}/sorc/ufs-weather-model"
-      ./manage_externals/checkout_externals -e externals/Externals_canopy.cfg
-    fi
+      rm -rf "${SRW_DIR}/sorc/UFS_UTILS"
+      rm -rf "${SRW_DIR}/sorc/UPP"  
+      rm -rf "${SRW_DIR}/sorc/gsi"
+      rm -rf "${SRW_DIR}/sorc/rrfs_utl"
+    fi 
+    printf "... Checking out external components for Online-CMAQ ...\n"
+    ./manage_externals/checkout_externals -e Externals_AQM.cfg
+  fi
+  if [ "${CANOPY}" = true ]; then
+    printf "... Replace ufs-weather-model with the canopy version ...\n"
+    rm -rf "${SRW_DIR}/sorc/ufs-weather-model"
+    ./manage_externals/checkout_externals -e externals/Externals_canopy.cfg
   fi
 
   if [ "${DEFAULT_BUILD}" = true ]; then
     BUILD_NEXUS="on"
     BUILD_AQM_UTILS="on"
+  fi
+  if [ "${PLATFORM}" = "wcoss2" ]; then
+    BUILD_POST_STAT="on"
+  else
+    BUILD_POST_STAT="off"
+  fi
+else
+  if [ -d "${SRW_DIR}/sorc/ufs-weather-model" ]; then
+    printf "!!! External components already exist. This step is skipped.\n"
+  else  
+    printf "... Checking out external components for FV3-LAM ...\n"  
+    ./manage_externals/checkout_externals
   fi
 fi
 
@@ -341,7 +355,6 @@ CMAKE_SETTINGS="\
  -DBUILD_UFS_UTILS=${BUILD_UFS_UTILS}\
  -DBUILD_UPP=${BUILD_UPP}\
  -DBUILD_GSI=${BUILD_GSI}\
- -DBUILD_RRFS_UTILS=${BUILD_RRFS_UTILS}\
  -DBUILD_NEXUS=${BUILD_NEXUS}\
  -DBUILD_AQM_UTILS=${BUILD_AQM_UTILS}"
 
@@ -358,7 +371,27 @@ if [ ! -z "${DISABLE_OPTIONS}" ]; then
   CMAKE_SETTINGS="${CMAKE_SETTINGS} -DDISABLE_OPTIONS=${DISABLE_OPTIONS}"
 fi
 if [ "${APPLICATION}" = "ATMAQ" ]; then
-  CMAKE_SETTINGS="${CMAKE_SETTINGS} -DCPL_AQM=ON"
+  CMAKE_SETTINGS="${CMAKE_SETTINGS} -DCPL_AQM=ON -DBUILD_POST_STAT=${BUILD_POST_STAT}"
+
+  # Copy module files to designated directory
+  EXTRN_BUILD_MOD_DIR="${SRW_DIR}/modulefiles/extrn_comp_build"
+  mkdir -p ${EXTRN_BUILD_MOD_DIR}
+  if [ "${BUILD_UFS}" = "on" ]; then
+    cp "${SRW_DIR}/sorc/ufs-weather-model/modulefiles/ufs_${PLATFORM}.${COMPILER}.lua" "${EXTRN_BUILD_MOD_DIR}/mod_ufs-weather-model.lua"
+    cp "${SRW_DIR}/sorc/ufs-weather-model/modulefiles/ufs_common.lua" ${EXTRN_BUILD_MOD_DIR}
+  fi
+  if [ "${BUILD_UFS_UTILS}" = "on" ]; then
+    cp "${SRW_DIR}/sorc/UFS_UTILS/modulefiles/build.${PLATFORM}.${COMPILER}.lua" "${EXTRN_BUILD_MOD_DIR}/mod_ufs-utils.lua"
+  fi
+  if [ "${BUILD_UPP}" = "on" ]; then
+    cp "${SRW_DIR}/sorc/UPP/modulefiles/${PLATFORM}.lua" "${EXTRN_BUILD_MOD_DIR}/mod_upp.lua" 
+  fi
+  if [ "${BUILD_NEXUS}" = "on" ]; then
+    cp "${SRW_DIR}/sorc/AQM-utils/parm/nexus_modulefiles/${PLATFORM}.${COMPILER}.lua" "${EXTRN_BUILD_MOD_DIR}/mod_nexus.lua"
+  fi
+  if [ "${BUILD_AQM_UTILS}" = "on" ]; then
+    cp "${SRW_DIR}/sorc/AQM-utils/modulefiles/build_${PLATFORM}.${COMPILER}.lua" "${EXTRN_BUILD_MOD_DIR}/mod_aqm-utils.lua"
+  fi
 fi
 
 # make settings

@@ -7,8 +7,8 @@
 #
 #-----------------------------------------------------------------------
 #
-. ${GLOBAL_VAR_DEFNS_FP}
 . $USHdir/source_util_funcs.sh
+source_config_for_task "cpl_aqm_parm" ${GLOBAL_VAR_DEFNS_FP}
 #
 #-----------------------------------------------------------------------
 #
@@ -76,7 +76,6 @@ else
   print_info_msg "$VERBOSE" "
   All executables will be submitted with command \'${RUN_CMD_AQM}\'."
 fi
-
 #
 #-----------------------------------------------------------------------
 #
@@ -94,6 +93,21 @@ cd_vrfy $DATA
 #
 #-----------------------------------------------------------------------
 #
+# Link GFS surface data files to the tmp directory if they exist
+#
+#-----------------------------------------------------------------------
+#
+USE_GFS_SFC="FALSE"
+if [ -d "${COMINext}/GFS_SFC" ]; then
+  if [ "$(ls -A ${COMINext}/GFS_SFC)" ]; then
+    ln_vrfy -sf "${COMINext}/GFS_SFC" .
+    USE_GFS_SFC="TRUE"
+  fi
+fi
+
+#
+#-----------------------------------------------------------------------
+#
 # Copy the NEXUS config files to the tmp directory  
 #
 #-----------------------------------------------------------------------
@@ -101,7 +115,12 @@ cd_vrfy $DATA
 cp_vrfy ${EXECdir}/nexus ${DATA}
 cp_vrfy ${NEXUS_FIX_DIR}/${NEXUS_GRID_FN} ${DATA}/grid_spec.nc
 
-cp_vrfy ${ARL_NEXUS_DIR}/config/cmaq/*.rc ${DATA}
+
+if [ "${USE_GFS_SFC}" = "TRUE" ]; then
+    cp_vrfy ${ARL_NEXUS_DIR}/config/cmaq_gfs_megan/*.rc ${DATA}
+else
+    cp_vrfy ${ARL_NEXUS_DIR}/config/cmaq/*.rc ${DATA}
+fi
 #
 #-----------------------------------------------------------------------
 #
@@ -116,6 +135,15 @@ hh="${cyc}"
 yyyymmdd="${PDY}"
 
 NUM_SPLIT_NEXUS=$( printf "%02d" ${NUM_SPLIT_NEXUS} )
+if [ "${FCST_LEN_HRS}" = "-1" ]; then
+  for i_cdate in "${!ALL_CDATES[@]}"; do
+    if [ "${ALL_CDATES[$i_cdate]}" = "${PDY}${cyc}" ]; then
+      FCST_LEN_HRS="${FCST_LEN_CYCL[$i_cdate]}"
+      break
+    fi      
+  done
+fi
+
 if [ "${NUM_SPLIT_NEXUS}" = "01" ]; then
   start_date=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC" "+%Y%m%d%H" )
   end_date=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC + ${FCST_LEN_HRS} hours" "+%Y%m%d%H" )
@@ -183,14 +211,13 @@ if [ "${NEI2016}" = "TRUE" ]; then #NEI2016
     cp_vrfy ${ARL_NEXUS_DIR}/utils/python/nexus_nei2016_linker.py .
     cp_vrfy ${ARL_NEXUS_DIR}/utils/python/nexus_nei2016_control_tilefix.py .
     mkdir_vrfy -p ${DATAinput}/NEI2016v1
-    mkdir_vrfy -p ${DATAinput}/NEI2016v1/v2020-07
-    mkdir_vrfy -p ${DATAinput}/NEI2016v1/v2020-07/${mm}
     mkdir_vrfy -p ${DATAinput}/NEI2016v1/v2022-07
     mkdir_vrfy -p ${DATAinput}/NEI2016v1/v2022-07/${mm}
-    ./nexus_nei2016_linker.py --src_dir ${NEXUS_INPUT_BASE_DIR} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2020-07"
     ./nexus_nei2016_linker.py --src_dir ${NEXUS_INPUT_BASE_DIR} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2022-07"
-    ./nexus_nei2016_control_tilefix.py -f NEXUS_Config.rc -d ${yyyymmdd}
+    ./nexus_nei2016_control_tilefix.py -f NEXUS_Config.rc -t HEMCO_sa_Time.rc # -d ${yyyymmdd}
 fi
+
+
 
 if [ "${TIMEZONES}" = "TRUE" ]; then # TIME ZONES
     ln_vrfy -sf ${NEXUS_INPUT_BASE_DIR}/TIMEZONES ${DATAinput}/
@@ -246,6 +273,12 @@ fi
 
 if [ "${MODIS_XLAI}" = "TRUE" ]; then #MODIS_XLAI
     ln_vrfy -sf ${NEXUS_INPUT_BASE_DIR}/MODIS_XLAI ${DATAinput}/
+fi
+
+if [ "${USE_GFS_SFC}" = "TRUE" ]; then # GFS INPUT
+    cp_vrfy ${ARL_NEXUS_DIR}/utils/python/nexus_gfs_bio.py .
+    mkdir_vrfy -p $${DATAinput}/GFS_SFC
+    ./nexus_gfs_bio.py -i GFS_SFC/gfs.t??z.sfcf???.nc -o GFS_SFC_MEGAN_INPUT.nc
 fi
 
 #

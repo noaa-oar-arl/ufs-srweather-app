@@ -31,7 +31,8 @@ ctm_pmdiag: true
 #
 emission_sources: anthro fire
 {%- if do_aqm_canopy %} canopy{% endif %}
-{%- if do_aqm_fengsha %} fengsha{% endif %}
+{%- if do_aqm_dust %} dust{% endif %}
+{%- if do_aqm_product %} prod{% endif %}
 
 #
 #  Anthropogenic
@@ -143,14 +144,14 @@ anthro_species::
 ::
 
 #
-# FENGSHA
+# dust
 #
-fengsha_yn: {{ do_aqm_fengsha | lower }}
-fengsha_type: fengsha
-fengsha_format: netcdf
-fengsha_file: {{ aqm_rc_fengsha_file_fp }}
-fengsha_frequency: monthly
-fengsha_species::
+dust_type: fengsha
+dust_format: netcdf
+dust_file: {{ aqm_rc_dust_file_fp }}
+dust_frequency: monthly
+dust_alpha: 15.0
+dust_species::
     CLAYF       1.00000   clayfrac     1
     SANDF       1.00000   sandfrac     1
     DRAG        1.00000   albedo_drag  1
@@ -320,3 +321,22 @@ fire_species::
     XYL     0.0002964  CO          KG/M2/S
     FRP     1000000    MeanFRP     1
 ::
+
+#
+#  Output products
+#
+prod_type: product
+prod_file: {{ aqm_rc_product_fn }}
+prod_frequency: {{ aqm_rc_product_frequency }}
+prod_sync: true
+prod_species::
+    O3      ozone       instantaneous
+    O3      o3min       min
+    O3      o3max       max
+    O3      o3ave       average
+    PM2.5   pm25        instantaneous
+    PM2.5   pm25min     min
+    PM2.5   pm25max     max
+    PM2.5   pm25ave     average
+::
+

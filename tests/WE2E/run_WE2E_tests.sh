@@ -396,6 +396,16 @@ The argument \"machine\" specifying the machine or platform on which to
 run the WE2E tests was not specified in the call to this script.  \
 ${help_msg}"
 fi
+  # Cheyenne-specific test limitation
+
+if [ "${machine,,}" = "cheyenne" ]; then
+  use_cron_to_relaunch=FALSE
+  echo "
+Due to system limitations, the 'use_cron_to_relaunch' command can not be used on
+the '${machine}' machine. Setting this variable to false.
+
+"
+fi
 
 if [ -z "${account}" ]; then
   print_err_msg_exit "\
@@ -787,7 +797,12 @@ Please correct and rerun."
 #
 #-----------------------------------------------------------------------
 #
+
+  # Save the environment variable since a default will override when
+  # sourced.
+  save_USHdir=${USHdir}
   source_config ${USHdir}/config_defaults.yaml
+  USHdir=${save_USHdir}
   MACHINE_FILE=${machine_file:-"${USHdir}/machine/${machine,,}.yaml"}
   source_config ${MACHINE_FILE}
   source_config ${test_config_fp}
@@ -955,6 +970,11 @@ specified for this machine (MACHINE):
     fi
 
     pregen_dir="${pregen_basedir}/${PREDEF_GRID_NAME}"
+    expt_config_str=${expt_config_str}"
+#
+# Directory containing the pregenerated grid files.
+#
+DOMAIN_PREGEN_BASEDIR=\"${pregen_basedir}\""
 
   fi
 #
@@ -1016,7 +1036,7 @@ model_ver="we2e""
 #
 # Set NCO mode OPSROOT
 #
-OPSROOT=\"${opsroot}\""
+OPSROOT=\"${opsroot:-$OPSROOT}\""
 
   fi
 #
@@ -1304,12 +1324,47 @@ exist or is not a directory:
 #
 #-----------------------------------------------------------------------
 #
-  $USHdir/generate_FV3LAM_wflow.py || \
+  $USHdir/generate_FV3LAM_wflow.py
+
+  if [ $? != 0 ] ; then
     print_err_msg_exit "\
 Could not generate an experiment for the test specified by test_name:
   test_name = \"${test_name}\""
+  fi
 
 done
+
+# Print notes about monitoring/running jobs if use_cron_to_relaunch = FALSE
+topdir=${scrfunc_dir%/*/*/*}
+expt_dirs_fullpath="${topdir}/expt_dirs"
+
+echo "
+  ========================================================================
+  ========================================================================
+
+  All experiments have been generated in the directory
+  ${expt_dirs_fullpath}
+
+  ========================================================================
+  ========================================================================
+"
+
+if [ "${use_cron_to_relaunch,,}" = "false" ]; then
+  echo "
+
+The variable 'use_cron_to_relaunch' has been set to FALSE. Jobs will not be automatically run via crontab.
+
+You can run each task manually in the experiment directory:
+(${expt_dirs_fullpath})
+
+Or you can use the 'run_srw_tests.py' script in the ush/ directory:
+
+  cd $USHdir
+  ./run_srw_tests.py -e=${expt_dirs_fullpath}
+
+"
+fi
+
 #
 #-----------------------------------------------------------------------
 #

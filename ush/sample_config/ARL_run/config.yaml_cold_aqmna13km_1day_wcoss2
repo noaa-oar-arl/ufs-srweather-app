@@ -9,24 +9,23 @@ workflow:
   CRON_RELAUNCH_INTVL_MNTS: 3
   EXPT_BASEDIR: /lfs/h2/oar/ptmp/Patrick.C.Campbell/expt_dirs
   EXPT_SUBDIR: aqm_cold_aqmna13_1day
-  CCPP_PHYS_SUITE: FV3_GFS_v15p2
-  DATE_FIRST_CYCL: '20190805'
-  DATE_LAST_CYCL: '20190805'
-  CYCL_HRS:
-    - 12
-  FCST_LEN_HRS: 6
+  PREDEF_GRID_NAME: AQM_NA_13km
+  CCPP_PHYS_SUITE: FV3_GFS_v16
+  DATE_FIRST_CYCL: '2019080512'
+  DATE_LAST_CYCL: '2019080512'
+  FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
   VERBOSE: true
   COMPILER: intel
-  DIAG_TABLE_TMPL_FN: diag_table_aqm
-  FIELD_TABLE_TMPL_FN: field_table_aqm
+  DIAG_TABLE_TMPL_FN: diag_table_aqm.FV3_GFS_v16
+  FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
 nco:
   NET: aqm
 workflow_switches:
   RUN_TASK_MAKE_GRID: true
   RUN_TASK_MAKE_OROG: true
   RUN_TASK_MAKE_SFC_CLIMO: true
-  RUN_TASK_RUN_POST: true
+  RUN_TASK_RUN_POST: false
 task_get_extrn_ics:
   EXTRN_MDL_NAME_ICS: FV3GFS
 #  FV3GFS_FILE_FMT_ICS: grib2
@@ -39,11 +38,10 @@ task_run_fcst:
   LAYOUT_X: 50
   LAYOUT_Y: 34
   BLOCKSIZE: 16
-  RESTART_INTERVAL: 12
+  RESTART_INTERVAL: 24
   WTIME_RUN_FCST: 02:00:00
   QUILTING: true
   PRINT_ESMF: false
-  PREDEF_GRID_NAME: AQM_NA_13km
 task_run_post:
   POST_OUTPUT_DOMAIN_NAME: 793
 global:
@@ -54,28 +52,30 @@ cpl_aqm_parm:
   CPL_AQM: true
   RUN_TASK_ADD_AQM_ICS: true
   RUN_TASK_ADD_AQM_LBCS: true
-  RUN_TASK_RUN_NEXUS: true
+  RUN_TASK_NEXUS_GFS_SFC: true
+  RUN_TASK_NEXUS_EMISSION: true
+  RUN_TASK_FIRE_EMISSION: true
   NNODES_RUN_NEXUS: 4
   PPN_RUN_NEXUS: 40
-  RUN_ADD_AQM_CHEM_LBCS: true
-  RUN_ADD_AQM_GEFS_LBCS: true
+  DO_AQM_CHEM_LBCS: true
+  DO_AQM_GEFS_LBCS: true
   AQM_GEFS_CYC: 0
-  AQM_RC_TMPL_FN: aqm.rc
   AQM_CONFIG_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/aqm/epa/data
   AQM_BIO_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/aqm/bio
   AQM_BIO_FILE: BEIS_RRFScmaq_C775.ncf
-  DO_AQM_FENGSHA: true
-  AQM_FENGSHA_DIR: /lfs/h2/emc/ptmp/barry.baker
-  AQM_FENGSHA_FILE_PREFIX: FENGSHA_p8_10km_inputs
-  AQM_FENGSHA_FILE_SUFFIX: .nc
+  DO_AQM_DUST: true
+  AQM_DUST_DIR: /lfs/h2/emc/ptmp/barry.baker
+  AQM_DUST_FILE_PREFIX: FENGSHA_p8_10km_inputs
+  AQM_DUST_FILE_SUFFIX: .nc
   DO_AQM_CANOPY: false
   AQM_CANOPY_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/canopy
-  AQM_CANOPY_FILE: gfs.t12z.geo
+  AQM_CANOPY_FILE_PREFIX: gfs.t12z.geo
   AQM_CANOPY_FILE_SUFFIX: .canopy_regrid.nc
   AQM_FIRE_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/emissions/GSCE/RAVE.in.793/RAVE_RT
-  AQM_FIRE_FILE: Hourly_Emissions_regrid_NA_13km
+  AQM_FIRE_FILE_PREFIX: Hourly_Emissions_regrid_NA_13km
   AQM_FIRE_FILE_SUFFIX: _h72.nc
   AQM_RC_FIRE_FREQUENCY: hourly
+  DO_AQM_PRODUCT: true
   AQM_LBCS_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/LBCS/RRFS_NA13km_GEOS5_v2
   AQM_LBCS_FILES: geos5_bndy_v2.c793.2013<MM>.nc
   AQM_GEFS_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/GEFS_aerosol

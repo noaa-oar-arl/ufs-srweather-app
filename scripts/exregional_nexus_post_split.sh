@@ -7,8 +7,8 @@
 #
 #-----------------------------------------------------------------------
 #
-. ${GLOBAL_VAR_DEFNS_FP}
 . $USHdir/source_util_funcs.sh
+source_config_for_task "cpl_aqm_parm" ${GLOBAL_VAR_DEFNS_FP}
 #
 #-----------------------------------------------------------------------
 #
@@ -85,6 +85,23 @@ mkdir_vrfy -p "$DATA"
 
 cd_vrfy $DATA
 
+mm="${PDY:4:2}"
+dd="${PDY:6:2}"
+hh="${cyc}"
+yyyymmdd="${PDY}"
+
+NUM_SPLIT_NEXUS=$( printf "%02d" ${NUM_SPLIT_NEXUS} )
+if [ "${FCST_LEN_HRS}" = "-1" ]; then
+  for i_cdate in "${!ALL_CDATES[@]}"; do
+    if [ "${ALL_CDATES[$i_cdate]}" = "${PDY}${cyc}" ]; then
+      FCST_LEN_HRS="${FCST_LEN_CYCL[$i_cdate]}"
+      break
+    fi
+  done
+fi
+start_date=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC" "+%Y%m%d%H" )
+end_date=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC + ${FCST_LEN_HRS} hours" "+%Y%m%d%H" )
+
 #
 #-----------------------------------------------------------------------
 #
@@ -92,12 +109,17 @@ cd_vrfy $DATA
 #
 #-----------------------------------------------------------------------
 #
+cp_vrfy ${ARL_NEXUS_DIR}/config/cmaq/HEMCO_sa_Time.rc ${DATA}/HEMCO_sa_Time.rc
+
 cp_vrfy ${NEXUS_FIX_DIR}/${NEXUS_GRID_FN} ${DATA}/grid_spec.nc
-cp_vrfy ${ARL_NEXUS_DIR}/config/cmaq/HEMCO_sa_Time.rc ${DATA}
-
-nspt="00"
-cp_vrfy ${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.${nspt}.nc ${DATA}/NEXUS_Expt_combined.nc
-
+if [ "${NUM_SPLIT_NEXUS}" = "01" ]; then
+  nspt="00"
+  cp_vrfy ${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.${nspt}.nc ${DATA}/NEXUS_Expt_combined.nc
+else
+  cp_vrfy ${ARL_NEXUS_DIR}/utils/python/concatenate_nexus_post_split.py .
+  ./concatenate_nexus_post_split.py "${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.*.nc" "${DATA}/NEXUS_Expt_combined.nc"
+fi
+    
 #
 #-----------------------------------------------------------------------
 #
@@ -105,6 +127,9 @@ cp_vrfy ${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.${nspt}.nc 
 #
 #-----------------------------------------------------------------------
 #
+cp_vrfy ${ARL_NEXUS_DIR}/utils/python/nexus_time_parser.py .
+./nexus_time_parser.py -f ${DATA}/HEMCO_sa_Time.rc -s $start_date -e $end_date
+
 cp_vrfy ${ARL_NEXUS_DIR}/utils/python/make_nexus_output_pretty.py .
 ./make_nexus_output_pretty.py --src ${DATA}/NEXUS_Expt_combined.nc --grid ${DATA}/grid_spec.nc -o ${DATA}/NEXUS_Expt_pretty.nc -t ${DATA}/HEMCO_sa_Time.rc
 
@@ -115,8 +140,8 @@ cp_vrfy ${ARL_NEXUS_DIR}/utils/python/make_nexus_output_pretty.py .
 #
 #-----------------------------------------------------------------------
 #
-cp_vrfy ${ARL_NEXUS_DIR}/utils/run_nco_combine_ant_bio.sh .
-./run_nco_combine_ant_bio.sh NEXUS_Expt_pretty.nc NEXUS_Expt.nc
+cp_vrfy ${ARL_NEXUS_DIR}/utils/combine_ant_bio.py .
+./combine_ant_bio.py NEXUS_Expt_pretty.nc NEXUS_Expt.nc
 
 #
 #-----------------------------------------------------------------------
