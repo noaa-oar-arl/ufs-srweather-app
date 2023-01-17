@@ -8,7 +8,7 @@ workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
   EXPT_BASEDIR: /lfs/h2/oar/ptmp/Patrick.C.Campbell/expt_dirs
-  EXPT_SUBDIR: aqm_cold_aqmna13_1day
+  EXPT_SUBDIR: aqm_cold_aqmna13_1day_gfsv16_arl-base_no-canopy
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2019080512'
@@ -50,13 +50,12 @@ global:
   HALO_BLEND: 0
 cpl_aqm_parm:
   CPL_AQM: true
-  RUN_TASK_ADD_AQM_ICS: true
-  RUN_TASK_ADD_AQM_LBCS: true
+  RUN_TASK_AQM_ICS: true
+  RUN_TASK_AQM_LBCS: true
   RUN_TASK_NEXUS_GFS_SFC: true
   RUN_TASK_NEXUS_EMISSION: true
   RUN_TASK_FIRE_EMISSION: true
-  NNODES_RUN_NEXUS: 4
-  PPN_RUN_NEXUS: 40
+  PPN_NEXUS_EMISSION: 40
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   AQM_GEFS_CYC: 0
@@ -82,5 +81,6 @@ cpl_aqm_parm:
   NEXUS_INPUT_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/nexus_emissions
   NEXUS_FIX_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/nexus/fix
   NEXUS_GRID_FN: grid_spec_793.nc
+  NUM_SPLIT_NEXUS: 2
 #  COLDSTART: false
 #  WARMSTART_CYCLE_DIR: /lfs/h2/emc/lam/noscrub/RRFS_CMAQ/restart/RRFS_CONUS_13km/2019080612
