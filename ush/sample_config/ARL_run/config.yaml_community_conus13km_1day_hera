@@ -77,7 +77,7 @@ cpl_aqm_parm:
   AQM_LBCS_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/LBCS/RRFS_CONUS_13km_no_blending
   AQM_LBCS_FILES: gfs_bndy_chem_<MM>.tile7.000.nc
   AQM_GEFS_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/GEFS_aerosol
-  NEXUS_INPUT_DIR: /scratch2/NCEPDEV/naqfc/Jianping.Huang/emissions/nexus
+  NEXUS_INPUT_DIR: /scratch1/RDARCH/rda-arl-gpu/Barry.Baker/emissions/nexus
   NEXUS_FIX_DIR: /scratch2/NCEPDEV/naqfc/RRFS_CMAQ/nexus/fix
   NEXUS_GRID_FN: grid_spec_RRFS_CONUScompact_13km.nc
   NUM_SPLIT_NEXUS: 3
