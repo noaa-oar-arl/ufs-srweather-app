@@ -106,6 +106,15 @@ if [ "${PREDEF_GRID_NAME}" = "AQM_NA_13km" ]; then
   id_domain=793
 fi
 
+if [ "${FCST_LEN_HRS}" = "-1" ]; then
+  for i_cdate in "${!ALL_CDATES[@]}"; do
+    if [ "${ALL_CDATES[$i_cdate]}" = "${PDY}${cyc}" ]; then
+      FCST_LEN_HRS="${FCST_LEN_CYCL[$i_cdate]}"
+      break
+    fi
+  done
+fi
+
 #-----------------------------------------------------------------------------
 # STEP 1: Retrieve AIRNOW observation data
 #-----------------------------------------------------------------------------
@@ -135,16 +144,10 @@ fi
 # STEP 2:  Extracting PM2.5, O3, and met variables from CMAQ input and outputs
 #-----------------------------------------------------------------------------
 
-case $cyc in
-  00) bc_interp_hr=06;;
-  06) bc_interp_hr=72;;
-  12) bc_interp_hr=72;;
-  18) bc_interp_hr=06;;
-esac
-
+FCST_LEN_HRS=$( printf "%03d" ${FCST_LEN_HRS} )
 ic=1
 while [ $ic -lt 120 ]; do
-  if [ -s ${COMIN}/${NET}.${cycle}.chem_sfc.f0${bc_interp_hr}.nc ]; then
+  if [ -s ${COMIN}/${NET}.${cycle}.chem_sfc.f${FCST_LEN_HRS}.nc ]; then
     echo "cycle ${cyc} post1 is done!"
     break
   else  
@@ -153,7 +156,7 @@ while [ $ic -lt 120 ]; do
 done    
 
 if [ $ic -ge 120 ]; then 
-  print_err_msg_exit "FATAL ERROR - COULD NOT LOCATE:${NET}.${cycle}.chem_sfc.f0${bc_interp_hr}.nc"
+  print_err_msg_exit "FATAL ERROR - COULD NOT LOCATE:${NET}.${cycle}.chem_sfc.f${FCST_LEN_HRS}.nc"
 fi      
 
 # remove any pre-exit ${NET}.${cycle}.chem_sfc/met_sfc.nc for 2-stage post processing
@@ -180,11 +183,25 @@ cp_vrfy ${PARMaqm_utils}/bias_correction/aqm.t12z.chem_sfc.f000.nc ${DATA}/data/
 cp_vrfy ${PARMaqm_utils}/bias_correction/config.interp.pm2.5.5-vars_${id_domain}.${cyc}z ${DATA}
 
 PREP_STEP
-${EXECdir}/aqm_bias_interpolate config.interp.pm2.5.5-vars_${id_domain}.${cyc}z ${cyc}z ${PDY} ${PDY}  || print_err_msg_exit "Call to executable to run AQM_BIAS_INTERPOLATE returned with nonzero exit code."
+eval ${RUN_CMD_SERIAL} ${EXECdir}/aqm_bias_interpolate config.interp.pm2.5.5-vars_${id_domain}.${cyc}z ${cyc}z ${PDY} ${PDY} ${REDIRECT_OUT_ERR} || print_err_msg_exit "Call to executable to run AQM_BIAS_INTERPOLATE returned with nonzero exit code."
 POST_STEP
 
 cp_vrfy ${DATA}/out/pm25/${yyyy}/*nc ${DATA}/data/bcdata.${yyyymm}/interpolated/pm25/${yyyy}
 
+
+mkdir_vrfy -p  ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm}/interpolated/pm25/${yyyy}
+cp_vrfy ${DATA}/out/pm25/${yyyy}/*nc ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm}/interpolated/pm25/${yyyy}
+
+mkdir_vrfy -p ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm}/airnow/${yyyy}/${PDY}/b008
+mkdir_vrfy -p ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m1}/airnow/${yyyy_m1}/${PDYm1}/b008
+mkdir_vrfy -p ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m2}/airnow/${yyyy_m2}/${PDYm2}/b008
+mkdir_vrfy -p ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m3}/airnow/${yyyy_m3}/${PDYm3}/b008
+cp_vrfy ${COMINairnow}/${yyyy}/${PDY}/b008/xx031 ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm}/airnow/${yyyy}/${PDY}/b008
+cp_vrfy ${COMINairnow}/${yyyy_m1}/${PDYm1}/b008/xx031 ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m1}/airnow/${yyyy_m1}/${PDYm1}/b008
+cp_vrfy ${COMINairnow}/${yyyy_m2}/${PDYm2}/b008/xx031 ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m2}/airnow/${yyyy_m2}/${PDYm2}/b008
+cp_vrfy ${COMINairnow}/${yyyy_m3}/${PDYm3}/b008/xx031 ${AQM_AIRNOW_HIST_DIR}/bcdata.${yyyymm_m3}/airnow/${yyyy_m3}/${PDYm3}/b008
+
+#exit
 #-----------------------------------------------------------------------
 # STEP 4:  Performing Bias Correction for PM2.5 
 #-----------------------------------------------------------------------
@@ -196,7 +213,7 @@ cp_vrfy ${PARMaqm_utils}/bias_correction/site_blocking.pm2.5.2021.0427.2-sites.t
 cp_vrfy ${PARMaqm_utils}/bias_correction/bias_thresholds.pm2.5.2015.1030.32-sites.txt ${DATA}
 
 PREP_STEP
-${EXECdir}/aqm_bias_correct config.pm2.5.bias_corr_${id_domain}.${cyc}z ${cyc}z ${BC_STDAY} ${PDY} || print_err_msg_exit "Call to executable to run AQM_BIAS_CORRECT returned with nonzero exit code."
+eval ${RUN_CMD_SERIAL} ${EXECdir}/aqm_bias_correct config.pm2.5.bias_corr_${id_domain}.${cyc}z ${cyc}z ${BC_STDAY} ${PDY} ${REDIRECT_OUT_ERR} || print_err_msg_exit "Call to executable to run AQM_BIAS_CORRECT returned with nonzero exit code."
 POST_STEP
 
 cp_vrfy $DATA/out/pm2.5.corrected* ${COMIN}
@@ -222,7 +239,7 @@ id_gribdomain=${id_domain}
 EOF1
 
 PREP_STEP
-${EXECdir}/aqm_post_bias_cor_grib2 ${PDY} ${cyc} || print_err_msg_exit "\
+eval ${RUN_CMD_SERIAL} ${EXECdir}/aqm_post_bias_cor_grib2 ${PDY} ${cyc} ${REDIRECT_OUT_ERR} || print_err_msg_exit "\
 Call to executable to run AQM_POST_BIAS_COR_GRIB2 returned with nonzero exit code."
 POST_STEP
 
@@ -289,7 +306,7 @@ EOF1
     # write out grib2 format 
     #-------------------------------------------------
     PREP_STEP
-    ${EXECdir}/aqm_post_maxi_bias_cor_grib2  ${PDY} ${cyc} ${chk} ${chk1} || print_err_msg_exit "\
+    eval ${RUN_CMD_SERIAL} ${EXECdir}/aqm_post_maxi_bias_cor_grib2  ${PDY} ${cyc} ${chk} ${chk1} ${REDIRECT_OUT_ERR} || print_err_msg_exit "\
     Call to executable to run AQM_POST_MAXI_BIAS_COR_GRIB2 returned with nonzero exit code."
     POST_STEP
 
@@ -306,11 +323,11 @@ EOF1
   newgrib2file1=${NET}.${cycle}.ave_24hr_pm25_bc.227.grib2
 
   grid227="lambert:265.0000:25.0000:25.0000 226.5410:1473:5079.000 12.1900:1025:5079.000"
-  wgrib2 ${oldgrib2file1} -set_grib_type same -new_grid_winds earth -new_grid ${grid227}  ${newgrib2file1} 
+  wgrib2 ${oldgrib2file1} -set_grib_type c3b -new_grid_winds earth -new_grid ${grid227}  ${newgrib2file1} 
 
   oldgrib2file2=${NET}.${cycle}.max_1hr_pm25_bc.${id_domain}.grib2
   newgrib2file2=${NET}.${cycle}.max_1hr_pm25_bc.227.grib2
-  wgrib2 ${oldgrib2file2} -set_grib_type same -new_grid_winds earth -new_grid ${grid227}  ${newgrib2file2}
+  wgrib2 ${oldgrib2file2} -set_grib_type c3b -new_grid_winds earth -new_grid ${grid227}  ${newgrib2file2}
 
   cp_vrfy ${NET}.${cycle}.max_1hr_pm25_bc.${id_domain}.grib2   ${COMOUT}
   cp_vrfy ${NET}.${cycle}.ave_24hr_pm25_bc.${id_domain}.grib2  ${COMOUT}
@@ -324,21 +341,14 @@ EOF1
 fi
 
 fhr=01
-case ${cyc} in
-  00) endfhr=06;;
-  06) endfhr=72;;
-  12) endfhr=72;;
-  18) endfhr=06;;
-esac
-
-while [ "${fhr}" -le "${endfhr}" ]; do
+while [ "${fhr}" -le "${FCST_LEN_HRS}" ]; do
   fhr2d=$( printf "%02d" "${fhr}" )
   cat ${DATA}/${NET}.${cycle}.pm25_bc.f${fhr2d}.${id_domain}.grib2 >> tmpfile_pm25_bc
   (( fhr=fhr+1 ))
 done
 
 grid227="lambert:265.0000:25.0000:25.0000 226.5410:1473:5079.000 12.1900:1025:5079.000"
-wgrib2 tmpfile_pm25_bc -set_grib_type same -new_grid_winds earth -new_grid ${grid227} ${NET}.${cycle}.grib2_pm25_bc.227
+wgrib2 tmpfile_pm25_bc -set_grib_type c3b -new_grid_winds earth -new_grid ${grid227} ${NET}.${cycle}.grib2_pm25_bc.227
 
 cp_vrfy tmpfile_pm25_bc ${COMOUT}/${NET}.${cycle}.ave_1hr_pm25_bc.${id_domain}.grib2
 cp_vrfy ${NET}.${cycle}.grib2_pm25_bc.227 ${COMOUT}/${NET}.${cycle}.ave_1hr_pm25_bc.227.grib2

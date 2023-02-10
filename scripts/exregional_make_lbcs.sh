@@ -111,7 +111,7 @@ if [ "${FCST_LEN_HRS}" = "-1" ]; then
   done
 fi
 LBC_SPEC_FCST_HRS=()
-for i_lbc in $(seq ${LBC_SPEC_INTVL_HRS} ${LBC_SPEC_INTVL_HRS} $(( ${FCST_LEN_HRS}+${LBC_SPEC_INTVL_HRS} )) ); do
+for i_lbc in $(seq ${LBC_SPEC_INTVL_HRS} ${LBC_SPEC_INTVL_HRS} $(( FCST_LEN_HRS+LBC_SPEC_INTVL_HRS )) ); do
   LBC_SPEC_FCST_HRS+=("$i_lbc")
 done
 #
@@ -135,6 +135,7 @@ case "${CCPP_PHYS_SUITE}" in
 #
   "FV3_RRFS_v1beta" | \
   "FV3_GFS_v15_thompson_mynn_lam3km" | \
+  "FV3_GFS_v17_p8" | \
   "FV3_WoFS_v0" | \
   "FV3_HRRR" )
     if [ "${EXTRN_MDL_NAME_LBCS}" = "RAP" ] || \
