@@ -47,32 +47,11 @@ This is the ex-script for the task that runs NEXUS.
 #
 #-----------------------------------------------------------------------
 #
-# Set OpenMP variables.
-#
-#-----------------------------------------------------------------------
-#
-export KMP_AFFINITY=${KMP_AFFINITY_NEXUS_POST_SPLIT}
-export OMP_NUM_THREADS=${OMP_NUM_THREADS_NEXUS_POST_SPLIT}
-export OMP_STACKSIZE=${OMP_STACKSIZE_NEXUS_POST_SPLIT}
-#
-#-----------------------------------------------------------------------
-#
 # Set run command.
 #
 #-----------------------------------------------------------------------
 #
 eval ${PRE_TASK_CMDS}
-
-if [ -z "${RUN_CMD_SERIAL:-}" ] ; then
-  print_err_msg_exit "\
-  Run command was not set in machine file. \
-  Please set RUN_CMD_SERIAL for your platform"
-else
-  print_info_msg "$VERBOSE" "
-  All executables will be submitted with command \'${RUN_CMD_SERIAL}\'."
-fi
-
-set -x
 #
 #-----------------------------------------------------------------------
 #
@@ -116,8 +95,7 @@ if [ "${NUM_SPLIT_NEXUS}" = "01" ]; then
   nspt="00"
   cp_vrfy ${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.${nspt}.nc ${DATA}/NEXUS_Expt_combined.nc
 else
-  cp_vrfy ${ARL_NEXUS_DIR}/utils/python/concatenate_nexus_post_split.py .
-  ./concatenate_nexus_post_split.py "${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.*.nc" "${DATA}/NEXUS_Expt_combined.nc"
+  python3 ${ARL_NEXUS_DIR}/utils/python/concatenate_nexus_post_split.py "${COMIN}/NEXUS/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt_split.*.nc" "${DATA}/NEXUS_Expt_combined.nc"
 fi
     
 #
@@ -127,11 +105,9 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-cp_vrfy ${ARL_NEXUS_DIR}/utils/python/nexus_time_parser.py .
-./nexus_time_parser.py -f ${DATA}/HEMCO_sa_Time.rc -s $start_date -e $end_date
+python3 ${ARL_NEXUS_DIR}/utils/python/nexus_time_parser.py -f ${DATA}/HEMCO_sa_Time.rc -s $start_date -e $end_date
 
-cp_vrfy ${ARL_NEXUS_DIR}/utils/python/make_nexus_output_pretty.py .
-./make_nexus_output_pretty.py --src ${DATA}/NEXUS_Expt_combined.nc --grid ${DATA}/grid_spec.nc -o ${DATA}/NEXUS_Expt_pretty.nc -t ${DATA}/HEMCO_sa_Time.rc
+python3 ${ARL_NEXUS_DIR}/utils/python/make_nexus_output_pretty.py --src ${DATA}/NEXUS_Expt_combined.nc --grid ${DATA}/grid_spec.nc -o ${DATA}/NEXUS_Expt_pretty.nc -t ${DATA}/HEMCO_sa_Time.rc
 
 #
 #-----------------------------------------------------------------------
@@ -140,8 +116,7 @@ cp_vrfy ${ARL_NEXUS_DIR}/utils/python/make_nexus_output_pretty.py .
 #
 #-----------------------------------------------------------------------
 #
-cp_vrfy ${ARL_NEXUS_DIR}/utils/combine_ant_bio.py .
-./combine_ant_bio.py NEXUS_Expt_pretty.nc NEXUS_Expt.nc
+python3 ${ARL_NEXUS_DIR}/utils/combine_ant_bio.py ${DATA}/NEXUS_Expt_pretty.nc ${DATA}/NEXUS_Expt.nc
 
 #
 #-----------------------------------------------------------------------
