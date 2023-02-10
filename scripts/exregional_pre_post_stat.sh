@@ -47,32 +47,11 @@ This is the ex-script for the task that runs POST-UPP-STAT.
 #
 #-----------------------------------------------------------------------
 #
-# Set OpenMP variables.
-#
-#-----------------------------------------------------------------------
-#
-export KMP_AFFINITY=${KMP_AFFINITY_PRE_POST_STAT}
-export OMP_NUM_THREADS=${OMP_NUM_THREADS_PRE_POST_STAT}
-export OMP_STACKSIZE=${OMP_STACKSIZE_PRE_POST_STAT}
-#
-#-----------------------------------------------------------------------
-#
 # Set run command.
 #
 #-----------------------------------------------------------------------
 #
 eval ${PRE_TASK_CMDS}
-
-if [ -z "${RUN_CMD_SERIAL:-}" ] ; then
-  print_err_msg_exit "\
-  Run command was not set in machine file. \
-  Please set RUN_CMD_SERIAL for your platform"
-else
-  RUN_CMD_SERIAL=$(eval echo ${RUN_CMD_SERIAL})
-  print_info_msg "$VERBOSE" "
-  All executables will be submitted with command \'${RUN_CMD_SERIAL}\'."
-fi
-
 #
 #-----------------------------------------------------------------------
 #
@@ -84,8 +63,6 @@ DATA="${DATA}/tmp_PRE_POST_STAT"
 rm_vrfy -r $DATA
 mkdir_vrfy -p "$DATA"
 cd_vrfy $DATA
-
-set -x
 
 if [ "${FCST_LEN_HRS}" = "-1" ]; then
   for i_cdate in "${!ALL_CDATES[@]}"; do

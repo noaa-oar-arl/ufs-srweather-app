@@ -15,10 +15,15 @@ message(STATUS "BUILD_RRFS_UTILS ........ ${BUILD_RRFS_UTILS}")
 message(STATUS "BUILD_NEXUS ............. ${BUILD_NEXUS}")
 message(STATUS "BUILD_AQM_UTILS ......... ${BUILD_AQM_UTILS}")
 
-if (BUILD_UFS)
-  set(UFS_DEPEND "ufs-weather-model")
-else()
+# Set dependency of ufs weather model only for coupled model
+if (NOT APP)
   set(UFS_DEPEND "")
+else()
+  if (BUILD_UFS)
+    set(UFS_DEPEND "ufs-weather-model")
+  else()
+    set(UFS_DEPEND "")
+  endif()
 endif()
 
 # Build UFS weather model
@@ -27,9 +32,9 @@ if (BUILD_UFS)
 
   if(NOT CCPP_SUITES)
     if(CPL_AQM)
-      set(CCPP_SUITES "FV3_GFS_v15p2,FV3_GFS_v16")
+      set(CCPP_SUITES "FV3_GFS_v15p2,FV3_GFS_v16,FV3_GFS_v17_p8")
     else()
-      set(CCPP_SUITES "FV3_GFS_2017_gfdlmp,FV3_GFS_2017_gfdlmp_regional,FV3_GFS_v15p2,FV3_GFS_v16,FV3_RRFS_v1beta,FV3_HRRR,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0")
+      set(CCPP_SUITES "FV3_GFS_2017_gfdlmp,FV3_GFS_2017_gfdlmp_regional,FV3_GFS_v15p2,FV3_GFS_v16,FV3_GFS_v17_p8,FV3_RRFS_v1beta,FV3_HRRR,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0")
     endif()
   endif()
   
