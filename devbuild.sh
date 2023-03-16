@@ -10,7 +10,7 @@ OPTIONS
       show this help guide
   -p, --platform=PLATFORM
       name of machine you are building on
-      (e.g. cheyenne | hera | jet | orion | wcoss2)
+      (e.g. cheyenne | hera | jet | orion | wcoss2 | hopper)
   -c, --compiler=COMPILER
       compiler to use; default depends on platform
       (e.g. intel | gnu | cray | gccgfortran)
@@ -217,11 +217,12 @@ if [ "${DEFAULT_BUILD}" = true ]; then
   BUILD_UPP="on"
 fi
 
-# Choose components to build for air quality modeling (Online-CMAQ)
+# Choose components to build for Online-CMAQ
 if [ "${APPLICATION}" = "ATMAQ" ]; then
   if [ "${DEFAULT_BUILD}" = true ]; then
     BUILD_NEXUS="on"
     BUILD_AQM_UTILS="on"
+    BUILD_UPP="off"
   fi
   if [ "${PLATFORM}" = "wcoss2" ]; then
     BUILD_POST_STAT="on"
@@ -241,6 +242,7 @@ if [ -z "${COMPILER}" ] ; then
     cheyenne) COMPILER=intel ;;
     macos,singularity) COMPILER=gnu ;;
     odin,noaacloud) COMPILER=intel ;;
+    hopper) COMPILER=gnu ;;
     *)
       COMPILER=intel
       printf "WARNING: Setting default COMPILER=intel for new platform ${PLATFORM}\n" >&2;
@@ -322,7 +324,6 @@ CMAKE_SETTINGS="\
  -DBUILD_UFS_UTILS=${BUILD_UFS_UTILS}\
  -DBUILD_UPP=${BUILD_UPP}\
  -DBUILD_GSI=${BUILD_GSI}\
- -DBUILD_RRFS_UTILS=${BUILD_RRFS_UTILS}\
  -DBUILD_NEXUS=${BUILD_NEXUS}\
  -DBUILD_AQM_UTILS=${BUILD_AQM_UTILS}"
 
@@ -369,7 +370,7 @@ if [ "${VERBOSE}" = true ]; then
 fi
 
 # Before we go on load modules, we first need to activate Lmod for some systems
-source ${SRW_DIR}/etc/lmod-setup.sh $MACHINE
+#S.S# source ${SRW_DIR}/etc/lmod-setup.sh $MACHINE
 
 # source the module file for this platform/compiler combination, then build the code
 printf "... Load MODULE_FILE and create BUILD directory ...\n"
