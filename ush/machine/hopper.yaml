@@ -45,7 +45,7 @@ cpl_aqm_parm:
   AQM_DUST_DIR: /groups/ESS3/ytang/RRFS-input/FENGSHA
   AQM_CANOPY_DIR: /groups/ESS3/ytang/RRFS-input/canopy
   AQM_FIRE_DIR: /groups/ESS3/ytang/RRFS-input/emissions/GSCE/RAVE.in.793/RAVE_RT
-  AQM_LBCS_DIR: /groups/ESS3/ytang/RRFS-input/LBCS/UFSAQM_NA13km_GEOS5_LBC_v3
+  AQM_LBCS_DIR: /groups/ESS3/ytang/RRFS-input/LBCS/UFSAQM_NA13km_AM4_LBC_v1
   AQM_GEFS_DIR: /groups/ESS3/ytang/RRFS-input/GEFS_aerosol
   NEXUS_INPUT_DIR: /groups/ESS3/ytang/RRFS-input/nexus_emissions
   NEXUS_FIX_DIR: /groups/ESS3/ytang/RRFS-input/nexus/fix
