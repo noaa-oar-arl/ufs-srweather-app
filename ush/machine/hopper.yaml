@@ -49,5 +49,5 @@ cpl_aqm_parm:
   AQM_GEFS_DIR: /groups/ESS3/ytang/RRFS-input/GEFS_aerosol
   NEXUS_INPUT_DIR: /groups/ESS3/ytang/RRFS-input/nexus_emissions
   NEXUS_FIX_DIR: /groups/ESS3/ytang/RRFS-input/nexus/fix
-  PT_SRC_BASEDIR: 
+  PT_SRC_BASEDIR: /groups/ESS3/ytang/RRFS-input/emissions 
 
