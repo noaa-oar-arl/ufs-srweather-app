@@ -16,7 +16,7 @@ Usage: source $0 PLATFORM
 
 OPTIONS:
    PLATFORM - name of machine you are on
-      (e.g. cheyenne | hera | jet | orion | wcoss2 )
+      (e.g. cheyenne | hera | jet | orion | wcoss2 | hopper)
 EOF_USAGE
 }
 
@@ -66,6 +66,11 @@ if [ ! -z $(command -v conda) ]; then
 fi
 
 $has_mu && set -u
+
+if [ $machine == "hopper" ]; then
+echo "Hopper workaround to reset modules"
+module reset
+fi
 
 # List loaded modulefiles
 module --version

@@ -9,12 +9,12 @@ platform:
   MET_BIN_EXEC: bin
   MET_INSTALL_DIR: /contrib/met/10.1.1
   DOMAIN_PREGEN_BASEDIR: /scratch2/BMC/det/UFS_SRW_App/develop/FV3LAM_pregen
-  PARTITION_DEFAULT: hera
-  QUEUE_DEFAULT: batch
-  PARTITION_FCST: hera
-  QUEUE_FCST: batch
-  PARTITION_HPSS: service
-  QUEUE_HPSS: batch
+  PARTITION_DEFAULT: contrib
+  QUEUE_DEFAULT: qtong
+  PARTITION_FCST: contrib
+  QUEUE_FCST: qtong
+  PARTITION_HPSS: contrib
+  QUEUE_HPSS: qtong
   RUN_CMD_FCST: srun --export=ALL
   RUN_CMD_POST: srun --export=ALL
   RUN_CMD_SERIAL: time
