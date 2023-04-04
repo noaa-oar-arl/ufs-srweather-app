@@ -67,11 +67,6 @@ fi
 
 $has_mu && set -u
 
-if [ $machine == "hopper" ]; then
-echo "Hopper workaround to reset modules"
-module reset
-fi
-
 # List loaded modulefiles
 module --version
 module list
