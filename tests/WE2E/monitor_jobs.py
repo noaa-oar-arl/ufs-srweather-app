@@ -24,15 +24,17 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1, debug
                             one or more experiments. See example file monitor_jobs.yaml
         monitor_file (str): [optional]
         debug       (bool): [optional] Enable extra output for debugging
+
     Returns:
         str: The name of the file used for job monitoring (when script is finished, this 
              contains results/summary)
     """
 
-    starttime = datetime.now()
+    monitor_start = datetime.now()
     # Write monitor_file, which will contain information on each monitored experiment
+    monitor_start_string = monitor_start.strftime("%Y%m%d%H%M%S")
     if not monitor_file:
-        monitor_file = f'WE2E_tests_{starttime.strftime("%Y%m%d%H%M%S")}.yaml'
+        monitor_file = f'WE2E_tests_{monitor_start_string}.yaml'
     logging.info(f"Writing information for all experiments to {monitor_file}")
 
     write_monitor_file(monitor_file,expts_dict)
@@ -68,24 +70,43 @@ def monitor_jobs(expts_dict: dict, monitor_file: str = '', procs: int = 1, debug
         for expt in running_expts.copy():
             running_expts[expt] = expts_dict[expt]
             if running_expts[expt]["status"] in ['DEAD','ERROR','COMPLETE']:
-                logging.info(f'Experiment {expt} is {running_expts[expt]["status"]};'\
-                              'will no longer monitor.')
+                # If start_time is in dictionary, compute total walltime
+                walltimestr = ''
+                if running_expts[expt].get("start_time",{}) and not running_expts[expt].get("walltime",{}):
+                    end = datetime.now()
+                    start = datetime.strptime(running_expts[expt]["start_time"],'%Y%m%d%H%M%S')
+                    walltime = end - start
+                    walltimestr = f'Took {str(walltime)}; '
+                    running_expts[expt]["walltime"] = str(walltime)
+
+                logging.info(f'Experiment {expt} is {running_expts[expt]["status"]}')
+
+                # If failures, check how many experiments were successful
+                if debug:
+                    if running_expts[expt]["status"] != "COMPLETE":
+                        i=j=0
+                        for task in running_expts[expt]:
+                            # Skip non-task entries
+                            if task in ["expt_dir","status","start_time","walltime"]:
+                                continue
+                            j+=1
+                            if running_expts[expt][task]["status"] == "SUCCEEDED":
+                                i+=1
+                        logging.debug(f'{i} of {j} tasks were successful')
+                logging.info(f'{walltimestr}will no longer monitor.')
                 running_expts.pop(expt)
                 continue
             logging.debug(f'Experiment {expt} status is {expts_dict[expt]["status"]}')
 
         write_monitor_file(monitor_file,expts_dict)
         endtime = datetime.now()
-        total_walltime = endtime - starttime
+        total_walltime = endtime - monitor_start
 
         logging.debug(f"Finished loop {i}\nWalltime so far is {str(total_walltime)}")
         #Slow things down just a tad between loops so experiments behave better
         time.sleep(5)
 
-    endtime = datetime.now()
-    total_walltime = endtime - starttime
-
-    logging.info(f'All {len(expts_dict)} experiments finished in {str(total_walltime)}')
+    logging.info(f'All {len(expts_dict)} experiments finished')
     logging.info('Calculating core-hour usage and printing final summary')
 
     # Calculate core hours and update yaml

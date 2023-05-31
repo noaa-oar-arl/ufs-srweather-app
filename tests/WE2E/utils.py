@@ -31,9 +31,10 @@ def print_WE2E_summary(expts_dict: dict, debug: bool = False):
     """Function that creates a summary for the specified experiment
 
     Args:
-        expts_dict  (dict): A dictionary containing the information needed to run
-                            one or more experiments. See example file WE2E_tests.yaml
-        debug       (bool): [optional] Enable extra output for debugging
+        expts_dict (dict): A dictionary containing the information needed to run
+                           one or more experiments. See example file WE2E_tests.yaml
+        debug      (bool): [optional] Enable extra output for debugging
+
     Returns:
         None
     """
@@ -58,7 +59,7 @@ def print_WE2E_summary(expts_dict: dict, debug: bool = False):
 
         for task in expts_dict[expt]:
             # Skip non-task entries
-            if task in ["expt_dir","status"]:
+            if task in ["expt_dir","status","start_time","walltime"]:
                 continue
             status = expts_dict[expt][task]["status"]
             walltime = expts_dict[expt][task]["walltime"]
@@ -93,7 +94,8 @@ def print_WE2E_summary(expts_dict: dict, debug: bool = False):
         print(line)
 
     # Print summary and details to file
-    summary_file = f'WE2E_summary_{datetime.now().strftime("%Y%m%d%H%M%S")}.txt'
+    summary_file = os.path.join(os.path.dirname(expts_dict[expt]["expt_dir"]),
+                                f'WE2E_summary_{datetime.now().strftime("%Y%m%d%H%M%S")}.txt')
     print(f"\nDetailed summary written to {summary_file}\n")
 
     with open(summary_file, 'w', encoding="utf-8") as f:
@@ -109,11 +111,12 @@ def create_expts_dict(expt_dir: str) -> dict:
     experiments, and creates a skeleton dictionary that can be filled out by update_expt_status()
 
     Args:
-        expt_dir   (str) : Experiment directory
+        expt_dir (str): Experiment directory
+
     Returns:
-        dict : Experiment dictionary
+        dict: Experiment dictionary
     """
-    contents = os.listdir(expt_dir)
+    contents = sorted(os.listdir(expt_dir))
 
     expts_dict=dict()
     for item in contents:
@@ -142,10 +145,11 @@ def calculate_core_hours(expts_dict: dict) -> dict:
     and calculates the core hours used by each task, updating expts_dict with this info
 
     Args:
-        expts_dict  (dict): A dictionary containing the information needed to run
-                            one or more experiments. See example file WE2E_tests.yaml
+        expts_dict (dict): A dictionary containing the information needed to run
+                           one or more experiments. See example file WE2E_tests.yaml
+
     Returns:
-        dict : Experiments dictionary updated with core hours
+        dict: Experiments dictionary updated with core hours
     """
 
     for expt in expts_dict:
@@ -161,7 +165,7 @@ def calculate_core_hours(expts_dict: dict) -> dict:
         cores_per_node = vdf["NCORES_PER_NODE"]
         for task in expts_dict[expt]:
             # Skip non-task entries
-            if task in ["expt_dir","status"]:
+            if task in ["expt_dir","status","start_time","walltime"]:
                 continue
             # Cycle is last 12 characters, task name is rest (minus separating underscore)
             taskname = task[:-13]
@@ -190,6 +194,9 @@ def write_monitor_file(monitor_file: str, expts_dict: dict):
             f.write("### THIS FILE IS AUTO_GENERATED AND REGULARLY OVER-WRITTEN BY WORKFLOW SCRIPTS\n")
             f.write("### EDITS MAY RESULT IN MISBEHAVIOR OF EXPERIMENTS RUNNING\n")
             f.writelines(cfg_to_yaml_str(expts_dict))
+    except KeyboardInterrupt:
+        logging.warning("\nRefusing to interrupt during file write; try again\n")
+        write_monitor_file(monitor_file,expts_dict)
     except:
         logging.fatal("\n********************************\n")
         logging.fatal(f"WARNING WARNING WARNING\n")
@@ -236,18 +243,19 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
              to ensure there are no un-submitted jobs. We will no longer monitor this experiment.
 
     Args:
-        expt    (dict):    A dictionary containing the information for an individual experiment, as
-                           described in the main monitor_jobs() function.
-        name     (str):    Name of the experiment; used for logging only
-        refresh (bool):    If true, this flag will check an experiment status even if it is listed
-                           as DEAD, ERROR, or COMPLETE. Used for initial checks for experiments
-                           that may have been restarted.
-        debug   (bool):    Will capture all output from rocotorun. This will allow information such
-                           as job cards and job submit messages to appear in the log files, but can
-                           slow down the process drastically.
-        submit  (bool):    In addition to reading the rocoto database, script will advance the
-                           workflow by calling rocotorun. If simply generating a report, set this
-                           to False
+        expt    (dict): A dictionary containing the information for an individual experiment, as
+                        described in the main monitor_jobs() function.
+        name     (str): Name of the experiment; used for logging only
+        refresh (bool): If true, this flag will check an experiment status even if it is listed
+                        as DEAD, ERROR, or COMPLETE. Used for initial checks for experiments
+                        that may have been restarted.
+        debug   (bool): Will capture all output from rocotorun. This will allow information such
+                        as job cards and job submit messages to appear in the log files, but can
+                        slow down the process drastically.
+        submit  (bool): In addition to reading the rocoto database, script will advance the
+                        workflow by calling rocotorun. If simply generating a report, set this
+                        to False
+
     Returns:
         dict: The updated experiment dictionary.
     """
@@ -309,7 +317,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
     statuses = list()
     for task in expt:
         # Skip non-task entries
-        if task in ["expt_dir","status"]:
+        if task in ["expt_dir","status","start_time","walltime"]:
             continue
         statuses.append(expt[task]["status"])
 
@@ -341,7 +349,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
         # are past the first initial iteration of job submissions
         if not refresh:
             logging.warning(dedent(
-                """WARNING:Tasks have not yet been submitted for experiment {name};
+                f"""WARNING:Tasks have not yet been submitted for experiment {name};
                 it could be that your jobs are being throttled at the system level.
 
                 If you continue to see this message, there may be an error with your
@@ -424,6 +432,10 @@ def print_test_info(txtfile: str = "WE2E_test_info.txt") -> None:
         testname = filename[7:-5]
         dirname = os.path.basename(os.path.normpath(pathname))
         if os.path.islink(testfile):
+            if dirname == "default_configs":
+                # Don't document default configs since they are not traditional tests
+                # (and so don't follow the standard format)
+                continue
             targettestfile = os.readlink(testfile)
             targetfilename = os.path.basename(targettestfile)
             targettestname = targetfilename[7:-5]

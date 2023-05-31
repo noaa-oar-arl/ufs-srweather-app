@@ -8,7 +8,7 @@ import logging
 from textwrap import dedent
 from datetime import datetime
 
-sys.path.append("../../ush")
+sys.path.insert(1, "../../ush")
 
 from generate_FV3LAM_wflow import generate_FV3LAM_wflow
 from python_utils import (
@@ -25,8 +25,9 @@ def run_we2e_tests(homedir, args) -> None:
     """Function to run the WE2E tests selected by the user
 
     Args:
-        homedir  (str): The full path of the top-level app directory
-        args : The argparse.Namespace object containing command-line arguments
+        homedir (str): The full path of the top-level app directory
+        args    (obj): The argparse.Namespace object containing command-line arguments
+
     Returns:
         None
     """
@@ -69,7 +70,7 @@ def run_we2e_tests(homedir, args) -> None:
                     # "config." prefix and ".yaml" extension
                     tests_to_check.append(filename[7:-5])
                 logging.debug(f"Will check all tests:\n{tests_to_check}")
-            elif user_spec_tests[0] in ['fundamental', 'comprehensive']:
+            elif user_spec_tests[0] in ['fundamental', 'comprehensive', 'coverage']:
                 # I am writing this section of code under protest; we should use args.run_envir to
                 # check for run_envir-specific files!
                 prefix = f"machine_suites/{user_spec_tests[0]}"
@@ -138,10 +139,14 @@ def run_we2e_tests(homedir, args) -> None:
     for test in tests_to_run:
         #Starting with test yaml template, fill in user-specified and machine- and
         # test-specific options, then write resulting complete config.yaml
+        starttime = datetime.now()
+        starttime_string = starttime.strftime("%Y%m%d%H%M%S")
         test_name = os.path.basename(test).split('.')[1]
         logging.debug(f"For test {test_name}, constructing config.yaml")
         test_cfg = load_config_file(test)
 
+        if test_cfg.get('user') is None:
+            test_cfg['user'] = {}
         test_cfg['user'].update({"MACHINE": machine})
         test_cfg['user'].update({"ACCOUNT": args.account})
         if run_envir:
@@ -184,8 +189,7 @@ def run_we2e_tests(homedir, args) -> None:
                                                                        config_defaults,"lbcs")
 
         if 'verification' in test_cfg:
-            test_cfg['verification'] = check_task_verification(test_cfg,machine_defaults,
-                                                               config_defaults)
+            logging.debug(test_cfg['verification'])
 
         logging.debug(f"Writing updated config.yaml for test {test_name}\n"\
                        "based on specified command-line arguments:\n")
@@ -213,10 +217,11 @@ def run_we2e_tests(homedir, args) -> None:
             monitor_yaml[test_name] = dict()
             monitor_yaml[test_name].update({"expt_dir": expt_dir})
             monitor_yaml[test_name].update({"status": "CREATED"})
+            monitor_yaml[test_name].update({"start_time": starttime_string})
 
     if not args.use_cron_to_relaunch:
         logging.info("calling function that monitors jobs, prints summary")
-        monitor_file = f'WE2E_tests_{datetime.now().strftime("%Y%m%d%H%M%S")}.yaml'
+        monitor_file = f'WE2E_tests_{starttime_string}.yaml'
         write_monitor_file(monitor_file,monitor_yaml)
         try:
             monitor_file = monitor_jobs(monitor_yaml, monitor_file=monitor_file, procs=args.procs,
@@ -238,9 +243,10 @@ def check_tests(tests: list) -> list:
     Function for checking that all tests in a provided list of tests are valid
 
     Args:
-        tests        : List of potentially valid test names
+        tests (list): List of potentially valid test names
+
     Returns:
-        tests_to_run : List of config files corresponding to test names
+        list: List of config files corresponding to test names
     """
 
     testfiles = glob.glob('test_configs/**/config*.yaml', recursive=True)
@@ -260,6 +266,10 @@ def check_tests(tests: list) -> list:
     for test in tests:
         # Skip blank/empty testnames; this avoids failure if newlines or spaces are included
         if not test or test.isspace():
+            continue
+        # Skip if string has an octothorpe
+        if '#' in test:
+            logging.debug(f"Assuming line is a comment due to presence of '#' character:\n{test}")
             continue
         match = check_test(test)
         if not match:
@@ -288,8 +298,9 @@ def check_test(test: str) -> str:
 
     Args:
         test (str) : String of potential test name
+
     Returns:
-        str        : File name of test config file (empty string if no test file found)
+        str: File name of test config file (empty string if no test file found)
     """
     # potential test files
     testfiles = glob.glob('test_configs/**/config*.yaml', recursive=True)
@@ -309,26 +320,33 @@ def check_task_get_extrn_bcs(cfg: dict, mach: dict, dflt: dict, ics_or_lbcs: str
     task_get_extrn_lbcs section of test config yaml
 
     Args:
-        cfg  : Dictionary loaded from test config file
-        mach : Dictionary loaded from machine settings file
-        dflt : Dictionary loaded from default config file
-        ics_or_lbcs: Perform checks for ICs task or LBCs task
+        cfg         (dict): Dictionary loaded from test config file
+        mach        (dict): Dictionary loaded from machine settings file
+        dflt        (dict): Dictionary loaded from default config file
+        ics_or_lbcs (bool): Perform checks for ICs task or LBCs task
 
     Returns:
-        cfg_bcs : Updated dictionary for task_get_extrn_[ics|lbcs] section of test config
+        dict: Updated dictionary for task_get_extrn_[ics|lbcs] section of test config
     """
 
     if ics_or_lbcs not in ["lbcs", "ics"]:
         raise ValueError("ics_or_lbcs must be set to 'lbcs' or 'ics'")
 
-    I_OR_L = ics_or_lbcs.upper()
-
     #Make our lives easier by shortening some dictionary calls
     cfg_bcs = cfg[f'task_get_extrn_{ics_or_lbcs}']
 
-    # If RUN_TASK_GET_EXTRN_* is explicitly set to false, do nothing and return
-    if cfg.get('workflow_switches', {}).get(f'RUN_TASK_GET_EXTRN_{I_OR_L}', True) is False:
+    # If the task is turned off explicitly, do nothing and return
+    # To turn off that task, taskgroups is included without the
+    # coldstart group, or task_get_extrn_{ics_or_lbcs} is included
+    # without a value
+    taskgroups = cfg.get('rocoto', {}).get('taskgroups')
+    if taskgroups is not None and "coldstart.yaml" not in taskgroups:
         return cfg_bcs
+    rocoto_tasks = cfg.get('rocoto', {}).get('tasks',{})
+    if rocoto_tasks.get(f"task_get_extrn_{ics_or_lbcs}", "NA") is None:
+        return cfg_bcs
+
+    I_OR_L = ics_or_lbcs.upper()
 
     # If USE_USER_STAGED_EXTRN_FILES not specified or false, do nothing and return
     if not cfg_bcs.get('USE_USER_STAGED_EXTRN_FILES'):
@@ -380,54 +398,6 @@ def check_task_get_extrn_bcs(cfg: dict, mach: dict, dflt: dict, ics_or_lbcs: str
 
     return cfg_bcs
 
-def check_task_verification(cfg: dict, mach: dict, dflt: dict) -> dict:
-    """
-    Function for checking and updating various settings in verification section of test config yaml
-
-    Args:
-        cfg  : Dictionary loaded from test config file
-        mach : Dictionary loaded from machine settings file
-        dflt : Dictionary loaded from default config file
-    Returns:
-        cfg_vx : Updated dictionary for verification section of test config
-    """
-
-    # Make our lives easier by shortening some dictionary calls
-    if 'verification' in cfg:
-        cfg_vx = cfg['verification']
-    else:
-        cfg_vx = dict()
-
-    # If VX_FCST_INPUT_BASEDIR is already explicitly set in the test configuration
-    # dictionary, keep that value and just return.
-    if 'VX_FCST_INPUT_BASEDIR' in cfg_vx:
-        return cfg_vx
-
-    # Attempt to obtain the values of RUN_TASK_RUN_FCST, WRITE_DO_POST, and RUN_TASK_RUN_POST
-    # from the test configuration dictionary.  If not available there, get them from the default
-    # configuration dictionary.
-    flags = {'RUN_TASK_RUN_FCST': False, 'WRITE_DOPOST': False, 'RUN_TASK_RUN_POST': False}
-    for section in ['workflow_switches', 'task_run_fcst']:
-        for flag in flags:
-            if (section in cfg) and (flag in cfg[section]):
-                flags[flag] = cfg[section][flag]
-            elif flag in dflt[section]:
-                flags[flag] = dflt[section][flag]
-
-    # If UPP is going to be run (either in-line or as a separate set of tasks), set the
-    # VX_FCST_INPUT_BASEDIR to the default directory for the experiment.  Otherwise, set
-    # it to the value of TEST_VX_FCST_INPUT_BASEDIR in the machine file.
-    if (flags['RUN_TASK_RUN_FCST'] and flags['WRITE_DOPOST']) or flags['RUN_TASK_RUN_POST']:
-        cfg_vx['VX_FCST_INPUT_BASEDIR'] = dflt['workflow']['EXPTDIR']
-    else:
-        if 'TEST_VX_FCST_INPUT_BASEDIR' in mach['platform']:
-            cfg_vx['VX_FCST_INPUT_BASEDIR'] = mach['platform']['TEST_VX_FCST_INPUT_BASEDIR']
-        else:
-            cfg_vx['VX_FCST_INPUT_BASEDIR'] = ''
-
-    return cfg_vx
-
-
 def setup_logging(logfile: str = "log.run_WE2E_tests", debug: bool = False) -> None:
     """
     Sets up logging, printing high-priority (INFO and higher) messages to screen, and printing all
@@ -476,7 +446,7 @@ if __name__ == "__main__":
     required.add_argument('-t', '--tests', type=str, nargs="*",
                           help="""Can be one of three options (in order of priority):
     1. A test name or list of test names.
-    2. A test suite name ("fundamental", "comprehensive", or "all")
+    2. A test suite name ("fundamental", "comprehensive", "coverage", or "all")
     3. The name of a file (full or relative path) containing a list of test names.
     """, required=True)
 
@@ -523,8 +493,10 @@ if __name__ == "__main__":
     if args.modulefile is None:
         args.modulefile = f'build_{args.machine.lower()}_{args.compiler}'
     if args.procs < 1:
-        raise ValueError('You can not have less than one parallel process; select a valid value '\
+        raise argparse.ArgumentTypeError('You can not have less than one parallel process; select a valid value '\
                          'for --procs')
+    if not args.tests:
+        raise argparse.ArgumentTypeError('The --tests argument can not be empty')
 
     # Print test details (if requested)
     if args.print_test_info:

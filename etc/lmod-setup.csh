@@ -13,7 +13,9 @@ else
    set L_MACHINE=$1
 endif
 
-source /etc/csh.login
+if ( "$L_MACHINE" != wcoss2 ) then
+  source /etc/csh.login
+endif
    
 if ( "$L_MACHINE" == macos ) then
    arch=$(uname -m)
@@ -56,6 +58,9 @@ else if ( "$L_MACHINE" == odin ) then
 else if ( "$L_MACHINE" == hopper ) then
    setenv ENV "/usr/share/lmod/lmod/init/csh"
    source $ENV
+
+else if ( "$L_MACHINE" == wcoss2 ) then
+   module reset
 
 else
    module purge

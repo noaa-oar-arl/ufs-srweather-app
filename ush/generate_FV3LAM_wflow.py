@@ -3,7 +3,6 @@
 import os
 import sys
 import subprocess
-import unittest
 import logging
 from multiprocessing import Process
 from textwrap import dedent
@@ -102,140 +101,31 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
             expt_config["user"]["PARMdir"],
             wflow_xml_fn,
         )
+        global_var_defns_fp = expt_config["workflow"]["GLOBAL_VAR_DEFNS_FP"]
 
         log_info(
             f"""
-            Creating rocoto workflow XML file (WFLOW_XML_FP) from jinja template XML
-            file (template_xml_fp):
-              template_xml_fp = '{template_xml_fp}'
+            Creating rocoto workflow XML file (WFLOW_XML_FP):
               WFLOW_XML_FP = '{wflow_xml_fp}'"""
         )
 
         #
-        # Dictionary of settings to pass to fill_jinja
+        # Call the python script to generate the experiment's XML file
         #
-        settings = {}
-        for k, v in flatten_dict(expt_config).items():
-            settings[lowercase(k)] = v
+        rocoto_yaml_fp = expt_config["workflow"]["ROCOTO_YAML_FP"]
+        args = ["-o", wflow_xml_fp,
+                "-t", template_xml_fp,
+                "-c", rocoto_yaml_fp ]
+        if not debug:
+            args.append("-q")
 
-        ensmem_indx_name = ""
-        uscore_ensmem_name = ""
-        slash_ensmem_subdir = ""
-        if expt_config["global"]["DO_ENSEMBLE"]:
-            ensmem_indx_name = "mem"
-            uscore_ensmem_name = f"_mem#{ensmem_indx_name}#"
-            slash_ensmem_subdir = f"/mem#{ensmem_indx_name}#"
-
-        dt_atmos = expt_config["task_run_fcst"]["DT_ATMOS"]
-        date_first_cycl = expt_config["workflow"]["DATE_FIRST_CYCL"]
-        date_last_cycl = expt_config["workflow"]["DATE_LAST_CYCL"]
-        first_file_time = date_first_cycl + timedelta(seconds=dt_atmos)
-        fcst_threads = expt_config["task_run_fcst"]["OMP_NUM_THREADS_RUN_FCST"]
-
-        if date_first_cycl == date_last_cycl:
-            cycl_next = date_to_str(date_first_cycl, format="%Y%m%d%H00")
-        else:
-            cycl_next = date_to_str(date_first_cycl + timedelta(hours=expt_config['workflow']['INCR_CYCL_FREQ']), format="%Y%m%d%H00")
-
-        incr_cycl_freq = expt_config["workflow"]["INCR_CYCL_FREQ"]
-        date_2nd_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq), format="%Y%m%d%H00")
-        date_3rd_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq*2), format="%Y%m%d%H00")
-        date_4th_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq*3), format="%Y%m%d%H00")
-        fcst_len_hrs = expt_config["workflow"]["FCST_LEN_HRS"]
-        fcst_len_cycl = expt_config["workflow"]["FCST_LEN_CYCL"]
-        num_fcst_len_cycl = len(fcst_len_cycl)
-        if fcst_len_hrs == -1:
-            all_cdates = expt_config["workflow"]["ALL_CDATES"]
-            num_all_cdates = len(all_cdates)
-            num_cyc_days = num_all_cdates // num_fcst_len_cycl -1
-        else:
-            num_cyc_days = 0
-        date_1st_last_cycl = date_to_str(date_first_cycl + timedelta(hours=24*num_cyc_days), format="%Y%m%d%H00")
-        date_2nd_last_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq) + timedelta(hours=24*num_cyc_days), format="%Y%m%d%H00")
-        date_3rd_last_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq*2) + timedelta(hours=24*num_cyc_days), format="%Y%m%d%H00")
-        date_4th_last_cycl = date_to_str(date_first_cycl + timedelta(hours=incr_cycl_freq*3) + timedelta(hours=24*num_cyc_days), format="%Y%m%d%H00")
-
-        settings.update(
-            {
-                #
-                # Number of cores used for a task
-                #
-                "ncores_run_fcst": expt_config["task_run_fcst"]["PE_MEMBER01"],
-                "native_run_fcst": f"--cpus-per-task {fcst_threads} --exclusive",
-                "native_nexus_emission": f"--cpus-per-task {expt_config['task_nexus_emission']['OMP_NUM_THREADS_NEXUS_EMISSION']}",
-                #
-                # Parameters that determine the set of cycles to run.
-                #
-                "date_first_cycl": date_to_str(date_first_cycl, format="%Y%m%d%H00"),
-                "date_last_cycl": date_to_str(date_last_cycl, format="%Y%m%d%H00"),
-                "cdate_first_cycl": date_first_cycl,
-                "cycl_freq": f"{expt_config['workflow']['INCR_CYCL_FREQ']:02d}:00:00",
-                "cycl_next": cycl_next,
-                "date_2nd_cycl": date_2nd_cycl,
-                "date_3rd_cycl": date_3rd_cycl,
-                "date_4th_cycl": date_4th_cycl,
-                "date_1st_last_cycl": date_1st_last_cycl,
-                "date_2nd_last_cycl": date_2nd_last_cycl,
-                "date_3rd_last_cycl": date_3rd_last_cycl,
-                "date_4th_last_cycl": date_4th_last_cycl,
-                "fcst_len_hrs": fcst_len_hrs,
-                "fcst_len_cycl": fcst_len_cycl,
-                "num_fcst_len_cycl": num_fcst_len_cycl,
-                #
-                # Ensemble-related parameters.
-                #
-                "ensmem_indx_name": ensmem_indx_name,
-                "uscore_ensmem_name": uscore_ensmem_name,
-                "slash_ensmem_subdir": slash_ensmem_subdir,
-                #
-                # Parameters associated with subhourly post-processed output
-                #
-                "delta_min": expt_config["task_run_post"]["DT_SUBHOURLY_POST_MNTS"],
-                "first_fv3_file_tstr": first_file_time.strftime("000:%M:%S"),
-            }
-        )
-
-        # Log "settings" variable.
-        settings_str = cfg_to_yaml_str(settings)
-
-        log_info(
-            f"""
-            The variable 'settings' specifying values of the rococo XML variables
-            has been set as follows:
-            #-----------------------------------------------------------------------
-            settings =\n\n""",
-            verbose=verbose,
-        )
-        log_info(settings_str, verbose=verbose)
-
-        #
-        # Call the python script to generate the experiment's actual XML file
-        # from the jinja template file.
-        #
         try:
-            fill_jinja_template(
-                ["-q", "-u", settings_str, "-t", template_xml_fp, "-o", wflow_xml_fp]
-            )
+            fill_jinja_template(args)
         except:
-            logging.info(
-                dedent(
-                    f"""
-                      Variable settings specified on command line for
-                      fill_jinja_template.py:\n
-                        settings =\n\n"""
-                )
-                + settings_str
-            )
             raise Exception(
                 dedent(
                     f"""
-                    Call to python script fill_jinja_template.py to create a rocoto workflow
-                    XML file from a template file failed.  Parameters passed to this script
-                    are:
-                      Full path to template rocoto XML file:
-                        template_xml_fp = '{template_xml_fp}'
-                      Full path to output rocoto XML file:
-                        WFLOW_XML_FP = '{wflow_xml_fp}'
+                    Call to fill_jinja_template failed.
                     """
                 )
             )
@@ -285,7 +175,6 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
     # Copy or symlink fix files
     #
     if SYMLINK_FIX_FILES:
-
         log_info(
             f"""
             Symlinking fixed files from system directory (FIXgsm) to a subdirectory (FIXam):
@@ -367,12 +256,6 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
     )
     cp_vrfy(FIELD_TABLE_TMPL_FP, FIELD_TABLE_FP)
 
-    log_info(
-        f"""
-        Copying the template NEMS configuration file to the experiment directory...""",
-        verbose=verbose,
-    )
-    cp_vrfy(NEMS_CONFIG_TMPL_FP, NEMS_CONFIG_FP)
     #
     # Copy the CCPP physics suite definition file from its location in the
     # clone of the FV3 code repository to the experiment directory (EXPT-
@@ -444,6 +327,8 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
         SDF_USES_RUC_LSM
     ):
         lsoil = 9
+    if CCPP_PHYS_SUITE == "FV3_GFS_v15_thompson_mynn_lam3km":
+        lsoil = ""
     #
     # Create a multiline variable that consists of a yaml-compliant string
     # specifying the values that the namelist variables that are physics-
@@ -473,6 +358,8 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
         "target_lon": LON_CTR,
         "target_lat": LAT_CTR,
         "nrows_blend": HALO_BLEND,
+        "regional_bcs_from_gsi": False,
+        "write_restart_with_bcs": False,
         #
         # Question:
         # For a ESGgrid type grid, what should stretch_fac be set to?  This depends
@@ -525,15 +412,9 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
     gfs_physics_nml_dict.update({
         "kice": kice or None,
         "lsoil": lsoil or None,
-        "do_shum": DO_SHUM,
-        "do_sppt": DO_SPPT,
-        "do_skeb": DO_SKEB,
-        "do_spp": DO_SPP,
-        "n_var_spp": N_VAR_SPP,
-        "n_var_lndp": N_VAR_LNDP,
-        "lndp_type": LNDP_TYPE,
-        "fhcyc": FHCYC_LSM_SPP_OR_NOT,
+        "print_diff_pgr": PRINT_DIFF_PGR,
     })
+
     if CPL_AQM:
         gfs_physics_nml_dict.update({
             "cplaqm": True,    
@@ -613,12 +494,210 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
     #
     if PREDEF_GRID_NAME == "RRFS_NA_3km":
         settings["fms2_io_nml"] = {"netcdf_default_format": "netcdf4"}
+
+    settings_str = cfg_to_yaml_str(settings)
+
+    log_info(
+        f"""
+        The variable 'settings' specifying values of the weather model's
+        namelist variables has been set as follows:\n""",
+        verbose=verbose,
+    )
+    log_info("\nsettings =\n\n" + settings_str, verbose=verbose)
+    #
+    # -----------------------------------------------------------------------
+    #
+    # Call the set_namelist.py script to create a new FV3 namelist file (full
+    # path specified by FV3_NML_FP) using the file FV3_NML_BASE_SUITE_FP as
+    # the base (i.e. starting) namelist file, with physics-suite-dependent
+    # modifications to the base file specified in the yaml configuration file
+    # FV3_NML_YAML_CONFIG_FP (for the physics suite specified by CCPP_PHYS_SUITE),
+    # and with additional physics-suite-independent modifications specified
+    # in the variable "settings" set above.
+    #
+    # -----------------------------------------------------------------------
+    #
+    try:
+        set_namelist(
+            [
+                "-q",
+                "-n",
+                FV3_NML_BASE_SUITE_FP,
+                "-c",
+                FV3_NML_YAML_CONFIG_FP,
+                CCPP_PHYS_SUITE,
+                "-u",
+                settings_str,
+                "-o",
+                FV3_NML_FP,
+            ]
+        )
+    except:
+        logging.exception(
+            dedent(
+                f"""
+                Call to python script set_namelist.py to generate an FV3 namelist file
+                failed.  Parameters passed to this script are:
+                  Full path to base namelist file:
+                    FV3_NML_BASE_SUITE_FP = '{FV3_NML_BASE_SUITE_FP}'
+                  Full path to yaml configuration file for various physics suites:
+                    FV3_NML_YAML_CONFIG_FP = '{FV3_NML_YAML_CONFIG_FP}'
+                  Physics suite to extract from yaml configuration file:
+                    CCPP_PHYS_SUITE = '{CCPP_PHYS_SUITE}'
+                  Full path to output namelist file:
+                    FV3_NML_FP = '{FV3_NML_FP}'
+                  Namelist settings specified on command line:\n
+                    settings =\n\n"""
+            )
+            + settings_str
+        )
+    #
+    # If not running the TN_MAKE_GRID task (which implies the workflow will
+    # use pregenerated grid files), set the namelist variables specifying
+    # the paths to surface climatology files.  These files are located in
+    # (or have symlinks that point to them) in the FIXlam directory.
+    #
+    # Note that if running the TN_MAKE_GRID task, this action usually cannot
+    # be performed here but must be performed in that task because the names
+    # of the surface climatology files depend on the CRES parameter (which is
+    # the C-resolution of the grid), and this parameter is in most workflow
+    # configurations is not known until the grid is created.
+    #
+    if not expt_config['rocoto']['tasks'].get('task_make_grid'):
+
+        set_FV3nml_sfc_climo_filenames()
+
+    #
+    # -----------------------------------------------------------------------
+    #
+    # Generate namelist for surface cycle
+    #  Deleted in newer RRFS_dev version so here for testing only
+    #
+    # -----------------------------------------------------------------------
+    #
+    if DO_SURFACE_CYCLE:
+        if SDF_USES_RUC_LSM:
+            lsoil=9
+        settings = {}
+        settings["gfs_physics_nml"] = {
+            "lsoil": lsoil or None
+        }
+
+        settings_str = cfg_to_yaml_str(settings)
+        #
+        # populate the namelist file
+        #
+        try:
+            set_namelist(
+                [
+                    "-q",
+                    "-n",
+                    FV3_NML_FP,
+                    "-u",
+                    settings_str,
+                    "-o",
+                    FV3_NML_CYCSFC_FP,
+                ]
+            )
+        except:
+            logging.exception(
+                dedent(
+                    f"""
+                    Call to python script set_namelist.py to generate an FV3 namelist file
+                    failed.  Parameters passed to this script are:
+                      Full path to output namelist file:
+                        FV3_NML_FP = '{FV3_NML_FP}'
+                      Full path to output namelist file for DA:
+                        FV3_NML_RESTART_FP = '{FV3_NML_CYCSFC_FP}'
+                      Namelist settings specified on command line:\n
+                        settings =\n\n"""
+                )
+                + settings_str
+            )
+      
+    #
+    # -----------------------------------------------------------------------
+    #
+    # Generate namelist for DA cycle
+    #
+    # -----------------------------------------------------------------------
+    #
+    if DO_DACYCLE or DO_ENKFUPDATE:
+
+        if SDF_USES_RUC_LSM:
+            lsoil = 9
+
+        lupdatebc = False
+        if DO_UPDATE_BC:
+            lupdatebc = False   # not ready for setting this to true yet
+        
+        settings = {}
+        settings["fv_core_nml"] = {
+            "external_ic": False,
+            "make_nh": False,
+            "na_init": 0,
+            "nggps_ic": False,
+            "mountain": True,
+            "regional_bcs_from_gsi": lupdatebc,
+            "warm_start": True,
+        }
+        settings["gfs_physics_nml"] = {
+            "lsoil": lsoil or None
+            #"fh_dfi_radar": FH_DFI_RADAR # commented out untile develop gets radar tten code
+        }
+
+        settings_str = cfg_to_yaml_str(settings)
+        #
+        # populate the namelist file
+        #
+        try:
+            set_namelist(
+                [
+                    "-q",
+                    "-n",
+                    FV3_NML_FP,
+                    "-u",
+                    settings_str,
+                    "-o",
+                    FV3_NML_RESTART_FP,
+                ]
+            )
+        except:
+            logging.exception(
+                dedent(
+                    f"""
+                    Call to python script set_namelist.py to generate an FV3 namelist file
+                    failed.  Parameters passed to this script are:
+                      Full path to output namelist file:
+                        FV3_NML_FP = '{FV3_NML_FP}'
+                      Full path to output namelist file for DA:
+                        FV3_NML_RESTART_FP = '{FV3_NML_RESTART_FP}'
+                      Namelist settings specified on command line:\n
+                        settings =\n\n"""
+                )
+                + settings_str
+            )
+    #
+    # -----------------------------------------------------------------------
     #
     # Add the relevant tendency-based stochastic physics namelist variables to
     # "settings" when running with SPPT, SHUM, or SKEB turned on. If running
     # with SPP or LSM SPP, set the "new_lscale" variable.  Otherwise only
     # include an empty "nam_stochy" stanza.
     #
+    # -----------------------------------------------------------------------
+    #
+    settings = {}
+    settings["gfs_physics_nml"] = {
+        "do_shum": DO_SHUM,
+        "do_sppt": DO_SPPT,
+        "do_skeb": DO_SKEB,
+        "do_spp": DO_SPP,
+        "n_var_spp": N_VAR_SPP,
+        "n_var_lndp": N_VAR_LNDP,
+        "lndp_type": LNDP_TYPE,
+        "fhcyc": FHCYC_LSM_SPP_OR_NOT,
+    }
     nam_stochy_dict = {}
     if DO_SPPT:
         nam_stochy_dict.update(
@@ -702,76 +781,71 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
     settings["nam_sfcperts"] = nam_sfcperts_dict
 
     settings_str = cfg_to_yaml_str(settings)
-
-    log_info(
-        f"""
-        The variable 'settings' specifying values of the weather model's
-        namelist variables has been set as follows:\n""",
-        verbose=verbose,
-    )
-    log_info("\nsettings =\n\n" + settings_str, verbose=verbose)
     #
-    # -----------------------------------------------------------------------
+    #-----------------------------------------------------------------------
     #
-    # Call the set_namelist.py script to create a new FV3 namelist file (full
-    # path specified by FV3_NML_FP) using the file FV3_NML_BASE_SUITE_FP as
-    # the base (i.e. starting) namelist file, with physics-suite-dependent
-    # modifications to the base file specified in the yaml configuration file
-    # FV3_NML_YAML_CONFIG_FP (for the physics suite specified by CCPP_PHYS_SUITE),
-    # and with additional physics-suite-independent modifications specified
-    # in the variable "settings" set above.
+    # Generate namelist files with stochastic physics if needed
     #
-    # -----------------------------------------------------------------------
+    #-----------------------------------------------------------------------
     #
-    try:
-        set_namelist(
-            [
-                "-q",
-                "-n",
-                FV3_NML_BASE_SUITE_FP,
-                "-c",
-                FV3_NML_YAML_CONFIG_FP,
-                CCPP_PHYS_SUITE,
-                "-u",
-                settings_str,
-                "-o",
-                FV3_NML_FP,
-            ]
-        )
-    except:
-        logging.exception(
-            dedent(
-                f"""
-                Call to python script set_namelist.py to generate an FV3 namelist file
-                failed.  Parameters passed to this script are:
-                  Full path to base namelist file:
-                    FV3_NML_BASE_SUITE_FP = '{FV3_NML_BASE_SUITE_FP}'
-                  Full path to yaml configuration file for various physics suites:
-                    FV3_NML_YAML_CONFIG_FP = '{FV3_NML_YAML_CONFIG_FP}'
-                  Physics suite to extract from yaml configuration file:
-                    CCPP_PHYS_SUITE = '{CCPP_PHYS_SUITE}'
-                  Full path to output namelist file:
-                    FV3_NML_FP = '{FV3_NML_FP}'
-                  Namelist settings specified on command line:\n
-                    settings =\n\n"""
+    if DO_ENSEMBLE and ( DO_SPP or DO_SPPT or DO_SHUM or DO_SKEB or DO_LSM_SPP):
+        
+        try:
+            set_namelist(
+                [
+                    "-q",
+                    "-n",
+                    FV3_NML_FP,
+                    "-u",
+                    settings_str,
+                    "-o",
+                    FV3_NML_STOCH_FP,
+                ]
             )
-            + settings_str
-        )
-    #
-    # If not running the TN_MAKE_GRID task (which implies the workflow will
-    # use pregenerated grid files), set the namelist variables specifying
-    # the paths to surface climatology files.  These files are located in
-    # (or have symlinks that point to them) in the FIXlam directory.
-    #
-    # Note that if running the TN_MAKE_GRID task, this action usually cannot
-    # be performed here but must be performed in that task because the names
-    # of the surface climatology files depend on the CRES parameter (which is
-    # the C-resolution of the grid), and this parameter is in most workflow
-    # configurations is not known until the grid is created.
-    #
-    if not RUN_TASK_MAKE_GRID:
+        except:
+            logging.exception(
+                dedent(
+                    f"""
+                    Call to python script set_namelist.py to generate an FV3 namelist file
+                    failed.  Parameters passed to this script are:
+                      Full path to output namelist file:
+                        FV3_NML_FP = '{FV3_NML_FP}'
+                      Full path to output namelist file for stochastics:
+                        FV3_NML_STOCH_FP = '{FV3_NML_STOCH_FP}'
+                      Namelist settings specified on command line:\n
+                        settings =\n\n"""
+                )
+                + settings_str
+            )
 
-        set_FV3nml_sfc_climo_filenames()
+        if DO_DACYCLE or DO_ENKFUPDATE:
+            try:
+                set_namelist(
+                    [
+                        "-q",
+                        "-n",
+                        FV3_NML_RESTART_FP,
+                        "-u",
+                        settings_str,
+                        "-o",
+                        FV3_NML_RESTART_STOCH_FP,
+                    ]
+                )
+            except:
+                logging.exception(
+                    dedent(
+                        f"""
+                        Call to python script set_namelist.py to generate an FV3 namelist file
+                        failed.  Parameters passed to this script are:
+                          Full path to output namelist file:
+                            FV3_NML_FP = '{FV3_NML_FP}'
+                          Full path to output namelist file for stochastics:
+                            FV3_NML_RESTART_STOCH_FP = '{FV3_NML_RESTART_STOCH_FP}'
+                          Namelist settings specified on command line:\n
+                            settings =\n\n"""
+                    )
+                    + settings_str
+                )
 
     #
     # -----------------------------------------------------------------------
@@ -889,68 +963,18 @@ if __name__ == "__main__":
                 """
             )
         )
-    
-    # Note workflow generation completion
-    log_info(
-        f"""
-        ========================================================================
-        ========================================================================
+    else:
+        # If no exception, note workflow generation completion
+        log_info(
+            f"""
+            ========================================================================
 
-        Experiment generation completed.  The experiment directory is:
+            Experiment generation completed.  The experiment directory is:
 
-          EXPTDIR='{EXPTDIR}'
+              EXPTDIR='{EXPTDIR}'
 
-        ========================================================================
-        ========================================================================
-        """
-    )
-
-
-class Testing(unittest.TestCase):
-    def test_generate_FV3LAM_wflow(self):
-
-        # run workflows in separate process to avoid conflict between community and nco settings
-        def run_workflow(USHdir, logfile):
-            p = Process(target=generate_FV3LAM_wflow, args=(USHdir, logfile))
-            p.start()
-            p.join()
-            exit_code = p.exitcode
-            if exit_code != 0:
-                sys.exit(exit_code)
-
-        USHdir = os.path.dirname(os.path.abspath(__file__))
-        logfile = "log.generate_FV3LAM_wflow"
-        SED = get_env_var("SED")
-
-        # community test case
-        cp_vrfy(f"{USHdir}/config.community.yaml", f"{USHdir}/config.yaml")
-        run_command(
-            f"""{SED} -i 's/MACHINE: hera/MACHINE: linux/g' {USHdir}/config.yaml"""
+            ========================================================================
+            """
         )
-        run_workflow(USHdir, logfile)
 
-        # nco test case
-        nco_test_config = load_config_file(f"{USHdir}/config.nco.yaml")
-        # Since we don't have a pre-gen grid dir on a generic linux
-        # platform, turn the make_* tasks on for this test.
-        cfg_updates = {
-            "user": {
-                "MACHINE": "linux",
-            },
-            "workflow_switches": {
-                "RUN_TASK_MAKE_GRID": True,
-                "RUN_TASK_MAKE_OROG": True,
-                "RUN_TASK_MAKE_SFC_CLIMO": True,
-            },
-        }
-        update_dict(cfg_updates, nco_test_config)
 
-        with open(f"{USHdir}/config.yaml", "w") as cfg_file:
-            cfg_file.write(cfg_to_yaml_str(nco_test_config))
-
-        run_workflow(USHdir, logfile)
-
-    def setUp(self):
-        define_macos_utilities()
-        set_env_var("DEBUG", False)
-        set_env_var("VERBOSE", False)
