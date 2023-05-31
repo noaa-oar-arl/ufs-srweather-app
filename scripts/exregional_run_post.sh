@@ -64,7 +64,6 @@ export OMP_STACKSIZE=${OMP_STACKSIZE_RUN_POST}
 #
 eval ${PRE_TASK_CMDS}
 
-nprocs=$(( NNODES_RUN_POST*PPN_RUN_POST ))
 if [ -z "${RUN_CMD_POST:-}" ] ; then
   print_err_msg_exit "\
   Run command was not set in machine file. \
@@ -167,7 +166,7 @@ fi
 # Set the names of the forecast model's write-component output files.
 #
 if [ "${RUN_ENVIR}" = "nco" ]; then
-    DATAFCST=$DATAROOT/run_fcst${dot_ensmem/./_}.${share_pid}
+    DATAFCST=$DATAROOT/run_fcst_mem${ENSMEM_INDX}.${share_pid}
 else
     DATAFCST=$DATA
 fi

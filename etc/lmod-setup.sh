@@ -14,13 +14,15 @@ else
    L_MACHINE=$1
 fi
 
-[[ ${SHELLOPTS} =~ nounset ]] && has_mu=true || has_mu=false
-[[ ${SHELLOPTS} =~ errexit ]] && has_me=true || has_me=false
-$has_mu && set +u
-$has_me && set +e
-source /etc/profile
-$has_mu && set -u
-$has_me && set -e
+if [ "$L_MACHINE" != wcoss2 ]; then
+  [[ ${SHELLOPTS} =~ nounset ]] && has_mu=true || has_mu=false
+  [[ ${SHELLOPTS} =~ errexit ]] && has_me=true || has_me=false
+  $has_mu && set +u
+  $has_me && set +e
+  source /etc/profile
+  $has_mu && set -u
+  $has_me && set -e
+fi
 
 if [ "$L_MACHINE" = macos ]; then
    arch=$(uname -m)
@@ -62,6 +64,9 @@ elif [ "$L_MACHINE" = odin ]; then
 elif [ "$L_MACHINE" = hopper ]; then
    export BASH_ENV="/opt/ohpc/admin/lmod/lmod/init/bash"
    source $BASH_ENV
+
+elif [ "$L_MACHINE" = wcoss2 ]; then
+   module reset
 
 else
    module purge
