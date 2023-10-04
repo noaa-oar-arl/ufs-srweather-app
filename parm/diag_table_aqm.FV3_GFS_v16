@@ -235,6 +235,10 @@
 "gfs_sfc",     "xzts",        "xzts",      "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "d_conv",      "dconv",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "qrain",       "qrain",     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "canopylaixy",   "canopylaixy",   "fv3_history2d", "all",  .false.,  "none",  2
+"gfs_sfc",     "canopyfchxy",   "canopyfchxy",   "fv3_history2d", "all",  .false.,  "none",  2
+"gfs_sfc",     "canopyffracxy", "canopyffracxy", "fv3_history2d", "all",  .false.,  "none",  2
+"gfs_sfc",     "canopycluxy",   "canopycluxy",   "fv3_history2d", "all",  .false.,  "none",  2
 
 "gfs_phys",    "acond",        "acond",         "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "cduvb_ave",    "cduvb_ave",     "fv3_history2d",  "all",  .false.,  "none",  2

@@ -432,7 +432,11 @@ def generate_FV3LAM_wflow(
             if ( CCPP_PHYS_SUITE == "FV3_GFS_v16" or
                  CCPP_PHYS_SUITE == "FV3_GFS_v17_p8"):
                 gfs_physics_nml_dict.update({
-                "do_canopy": True         
+                "do_canopy": True,
+                "rdcanopylai": True,
+                "rdcanopyfch": True,
+                "rdcanopyffrac": True,
+                "rdcanopyclu": True
                 }) 
     settings["gfs_physics_nml"] = gfs_physics_nml_dict
 
