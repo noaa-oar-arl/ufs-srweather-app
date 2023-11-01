@@ -23,11 +23,11 @@ fixed_files:
   "FNVMNC  | vegetation_greenness",
   "FNVMXC  | vegetation_greenness",
   "FNSLPC  | slope_type",
-  "FNABSC  | maximum_snow_albedo",
-  "FNCANH  | canopy_forest_height",
-  "FNCANC  | canopy_clumping_index",
-  "FNCANL  | canopy_leaf_area_index",
-  "FNCANF  | canopy_forest_fraction"
+  "FNABSC  | maximum_snow_albedo"
+#  "FNCANH  | canopy_forest_height",
+#  "FNCANC  | canopy_clumping_index",
+#  "FNCANL  | canopy_leaf_area_index",
+#  "FNCANF  | canopy_forest_fraction"
   ]
   
   #
@@ -46,11 +46,11 @@ fixed_files:
   "soil_type",
   "substrate_temperature",
   "vegetation_greenness",
-  "vegetation_type",
-  "canopy_forest_height",
-  "canopy_clumping_index",
-  "canopy_leaf_area_index",
-  "canopy_forest_fraction"
+  "vegetation_type"
+#  "canopy_forest_height",
+#  "canopy_clumping_index",
+#  "canopy_leaf_area_index",
+#  "canopy_forest_fraction"
   ]
 
   #
@@ -173,11 +173,11 @@ fixed_files:
   "FNVMNC  | vegetation_greenness",
   "FNVMXC  | vegetation_greenness",
   "FNSLPC  | slope_type",
-  "FNABSC  | maximum_snow_albedo",
-  "FNCANH  | canopy_forest_height",
-  "FNCANC  | canopy_clumping_index",
-  "FNCANL  | canopy_leaf_area_index",
-  "FNCANF  | canopy_forest_fraction"
+  "FNABSC  | maximum_snow_albedo"
+#  "FNCANH  | canopy_forest_height",
+#  "FNCANC  | canopy_clumping_index",
+#  "FNCANL  | canopy_leaf_area_index",
+#  "FNCANF  | canopy_forest_fraction"
   ]
   
 
