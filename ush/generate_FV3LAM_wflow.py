@@ -576,6 +576,16 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
                            "vsvoo1:0.0", "vsvoo2:0.0", "vsvoo3:0.0", "vsvpo1:0.0", "vsvpo2:0.0", 
                            "vsvpo3:0.0", "xopn:0.0", "xylmn:0.0", "*:0.2" ]
         })
+        if DO_AQM_CANOPY:
+            if ( CCPP_PHYS_SUITE == "FV3_GFS_v16" or
+                 CCPP_PHYS_SUITE == "FV3_GFS_v17_p8"):
+                gfs_physics_nml_dict.update({
+                "do_canopy": True
+    #            "rdcanopylai": True,
+    #            "rdcanopyfch": True,
+    #            "rdcanopyffrac": True,
+    #            "rdcanopyclu": True
+                }) 
     settings["gfs_physics_nml"] = gfs_physics_nml_dict
 
     #
