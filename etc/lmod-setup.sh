@@ -7,7 +7,7 @@ Usage: source etc/lmod-setup.sh PLATFORM
 
 OPTIONS:
    PLATFORM - name of machine you are building on
-      (e.g. cheyenne | hera | jet | orion | wcoss2 | hopper)
+      (e.g. cheyenne | hera | jet | orion | hercules | wcoss2 | hopper )
 EOF_USAGE
    exit 1
 else
@@ -45,11 +45,14 @@ elif [ "$L_MACHINE" = singularity ]; then
    module purge
 
 elif [ "$L_MACHINE" = gaea ]; then
-   export BASH_ENV="/lustre/f2/dev/role.epic/contrib/apps/lmod/lmod/init/bash"
-   source $BASH_ENV
+   source /lustre/f2/dev/role.epic/contrib/Lmod_init.sh
 
-   export LMOD_SYSTEM_DEFAULT_MODULES="modules/3.2.11.4"
-   module --initial_load --no_redirect restore
+elif [ "$L_MACHINE" = gaea-c5 ]; then
+   source /lustre/f2/dev/role.epic/contrib/Lmod_init_C5.sh
+
+elif [ "$L_MACHINE" = derecho ]; then
+   module reset
+
 elif [ "$L_MACHINE" = odin ]; then
    module unload modules
    unset -f module
