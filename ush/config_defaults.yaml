@@ -592,7 +592,7 @@ workflow:
   DIAG_TABLE_TMPL_FN: 'diag_table.{{ CCPP_PHYS_SUITE }}'
   FIELD_TABLE_TMPL_FN: 'field_table.{{ CCPP_PHYS_SUITE }}'
   MODEL_CONFIG_FN: "model_configure"
-  NEMS_CONFIG_FN: "nems.configure"
+  NEMS_CONFIG_FN: "ufs.configure"
   AQM_RC_FN: "aqm.rc"
   AQM_RC_TMPL_FN: "aqm.rc"
 
