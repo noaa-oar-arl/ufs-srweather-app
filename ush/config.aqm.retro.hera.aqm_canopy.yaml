@@ -12,8 +12,6 @@ workflow:
   EXPT_SUBDIR: aqm_dev_noaa-oar-arl-aqm_canopy3_aqmna13_no-canopy
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
-  FIELD_DICT_FN: 'fd_ufs.yaml'
-  NEMS_CONFIG_FN: 'ufs.configure'
   DATE_FIRST_CYCL: '2023111000'
   DATE_LAST_CYCL: '2023111100'
   INCR_CYCL_FREQ: 24
