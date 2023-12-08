@@ -286,7 +286,7 @@ set -eu
 if [ -z "${COMPILER}" ] ; then
   case ${PLATFORM} in
     jet|hera|gaea) COMPILER=intel ;;
-    orion) COMPILER=intel ;;
+    orion|hercules) COMPILER=intel ;;
     wcoss2) COMPILER=intel ;;
     cheyenne) COMPILER=intel ;;
     macos,singularity) COMPILER=gnu ;;
