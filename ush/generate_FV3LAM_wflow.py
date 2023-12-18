@@ -583,7 +583,7 @@ def generate_FV3LAM_wflow(ushdir, logfile: str = "log.generate_FV3LAM_wflow", de
                 "do_canopy": True
     #            "rdcanopylai": True,
     #            "rdcanopyfch": True,
-    #            "rdcanopyffrac": True,
+    #            "rdcanopyfrt": True,
     #            "rdcanopyclu": True
                 }) 
     settings["gfs_physics_nml"] = gfs_physics_nml_dict
