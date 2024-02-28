@@ -131,6 +131,8 @@
 /
 
 &gfs_physics_nml
+    aux2d_time_avg = .false., .false., .false.,.false., .false.
+    aux3d_time_avg = .false., .false., .false.,.false., .false., .false.,.false.
     bl_mynn_edmf = 1
     bl_mynn_edmf_mom = 1
     bl_mynn_tkeadvect = .true.
@@ -143,6 +145,7 @@
     do_mynnedmf = .true.
     do_mynnsfclay = .false.
     dspheat = .true.
+    dtend_select = 'dtend*pbl'
     effr_in = .true.
     fhcyc = 0.0
     fhlwr = 1200.0
@@ -166,13 +169,15 @@
     isubc_lw = 2
     isubc_sw = 2
     ivegsrc = 1
-    ldiag3d = .false.
+    ldiag3d = .true.
     lheatstrg = .false.
     lradar = .true.
     lsm = 3
     lsoil_lsm = 9
     ltaerosol = .true.
     lwhtr = .true.
+    naux2d = 5
+    naux3d = 7
     nsfullradar_diag = 3600
     nst_anl = .true.
     nstf_name = 2,1,0,0,0
@@ -182,6 +187,7 @@
     pre_rad = .false.
     print_diff_pgr = .false.
     prslrd0 = 0.0
+    qdiag3d = .true.
     random_clds = .false.
     redrag = .true.
     satmedmf = .false.
