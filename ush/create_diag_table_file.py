@@ -4,24 +4,20 @@
 Function to create a diag_table file for the FV3 model using a
 template.
 """
+import argparse
 import os
 import sys
-import argparse
 from textwrap import dedent
-import tempfile
-
+from uwtools.api.template import render
 
 from python_utils import (
-    import_vars,
-    print_input_args,
-    print_info_msg,
     cfg_to_yaml_str,
-    load_shell_config,
     flatten_dict,
+    import_vars,
+    load_shell_config,
+    print_info_msg,
+    print_input_args,
 )
-
-# These come from ush/python_utils/workflow-tools
-from scripts.templater import set_template
 
 
 def create_diag_table_file(run_dir):
@@ -77,15 +73,10 @@ def create_diag_table_file(run_dir):
         verbose=VERBOSE,
     )
 
-    with tempfile.NamedTemporaryFile(dir="./",
-                                     mode="w+t",
-                                     prefix="aqm_rc_settings",
-                                     suffix=".yaml") as tmpfile:
-        tmpfile.write(settings_str)
-        tmpfile.seek(0)
-        # set_template does its own error handling
-        set_template(
-            ["-c", tmpfile.name, "-i", DIAG_TABLE_TMPL_FP, "-o", diag_table_fp]
+    render(
+        input_file = DIAG_TABLE_TMPL_FP,
+        output_file = diag_table_fp,
+        values_src = settings,
         )
     return True
 
