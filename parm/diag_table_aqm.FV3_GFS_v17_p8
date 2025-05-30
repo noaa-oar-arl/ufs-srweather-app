@@ -230,6 +230,37 @@
 ###
 "gfs_phys",    "aod",         "aod",           "fv3_history2d",      "all",  .false.,  "none",  2
 
+###
+# AQM canopy diagnostics begin
+###
+#
+#diffusivities t=heat/u=momentum
+#"gfs_phys",    "dkt"     ,       "dkt",          "fv3_history",  "all", .false., "none", 2
+#"gfs_phys",    "dku"     ,       "dku",          "fv3_history",  "all", .false., "none", 2
+#PBL tendencies
+#"gfs_phys",  "dtend_temp_pbl", "dtend_temp_pbl", "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_qv_pbl",   "dtend_qv_pbl",   "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_u_pbl",    "dtend_u_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_v_pbl",    "dtend_v_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_o3_pbl",   "dtend_o3_pbl",   "fv3_history", "all", .false., "none",  2
+#dynamical tendencies
+#"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
+#"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
+#canopy input diagnostics
+#"gfs_phys",  "claie",         "claie",       "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfch",          "cfch",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfrt",          "cfrt",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cclu",          "cclu",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cpopu",         "cpopu",       "fv3_history2d",         "all",  .false.,  "none",  2
+## photolysis diagnostics
+###
+#"gfs_phys",  "coszens",       "coszens",     "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jo3o1d",        "jo3o1d",      "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jno2",          "jno2",        "fv3_history2d",         "all",  .false.,  "none",  2
+###
+# AQM canopy diagnostics end
+###
+
 #=============================================================================================
 #
 #====> This file can be used with diag_manager/v2.0a (or higher) <====
