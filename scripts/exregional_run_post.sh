@@ -65,8 +65,18 @@
 #-----------------------------------------------------------------------
 #
 . $USHdir/source_util_funcs.sh
-for sect in user nco platform workflow global cpl_aqm_parm smoke_dust_parm \
-  task_run_fcst task_run_post ; do
+sections=(
+  user
+  nco
+  platform
+  workflow
+  global
+  cpl_aqm_parm
+  smoke_dust_parm
+  task_run_fcst.envvars
+  task_run_post.envvars
+)
+for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
 #
@@ -155,7 +165,7 @@ else
   if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     post_config_fp="${PARMdir}/upp/postxconfig-NT-AQM.txt"
   else
-    post_config_fp="${PARMdir}/upp/postxconfig-NT-rrfs.txt"
+    post_config_fp="${PARMdir}/upp/rrfs/postxconfig-NT-rrfs.txt"
   fi
   print_info_msg "
 ====================================================================

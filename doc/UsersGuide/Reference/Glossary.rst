@@ -25,7 +25,7 @@ Glossary
       Convective Available Potential Energy. 
 
    CCPA
-      Climatology-Calibrated Precipitation Analysis (CCPA) data. This data is required for METplus precipitation verification tasks within the SRW App. The most recent 8 days worth of data are publicly available and can be accessed `here <https://ftp.ncep.noaa.gov/data/nccf/com/ccpa/prod/>`__. 
+      Climatology-Calibrated Precipitation Analysis (CCPA) data. This data is required for METplus precipitation verification tasks within the SRW App. 
 
    CCPP
       The `Common Community Physics Package <https://dtcenter.org/community-code/common-community-physics-package-ccpp>`_ is a forecast-model agnostic, vetted collection of code containing atmospheric physical parameterizations and suites of parameterizations for use in Numerical Weather Prediction (NWP) along with a framework that connects the physics to the host forecast model.
@@ -129,9 +129,6 @@ Glossary
    HPC
       High-Performance Computing.
 
-   HPC-Stack
-      The `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__ is a repository that provides a unified, shell script-based build system for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufs.epic.noaa.gov/>`_ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`_ framework. View the HPC-Stack documentation :doc:`here <hpc-stack:index>`.
-
    HPSS
       High Performance Storage System (HPSS).
 
@@ -162,7 +159,7 @@ Glossary
       The Model of Emissions of Gases and Aerosols from Nature (`MEGAN <https://bai.ess.uci.edu/megan>`__) is a modeling system for estimating the emission of gases and aerosols from terrestrial ecosystems into the atmosphere. It has been integrated into a number of chemistry and transport models, including :ref:`NEXUS <nexus>`. 
 
    MERRA2
-      The `Modern-Era Retrospective analysis for Research and Applications, Version 2 <https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/>`__ provides satellite observation data back to 1980. According to NASA, "It was introduced to replace the original MERRA dataset because of the advances made in the assimilation system that enable assimilation of modern hyperspectral radiance and microwave observations, along with GPS-Radio Occultation datasets. It also uses NASA's ozone profile observations that began in late 2004. Additional advances in both the GEOS model and the GSI assimilation system are included in MERRA-2. Spatial resolution remains about the same (about 50 km in the latitudinal direction) as in MERRA."
+      The `Modern-Era Retrospective analysis for Research and Applications, Version 2 <https://gmao.gsfc.nasa.gov/gmao-products/merra-2>`__ provides satellite observation data back to 1980. According to NASA, "It was introduced to replace the original MERRA dataset because of the advances made in the assimilation system that enable assimilation of modern hyperspectral radiance and microwave observations, along with GPS-Radio Occultation datasets. It also uses NASA's ozone profile observations that began in late 2004. Additional advances in both the GEOS model and the GSI assimilation system are included in MERRA-2. Spatial resolution remains about the same (about 50 km in the latitudinal direction) as in MERRA."
 
    MET
    METplus
@@ -189,11 +186,11 @@ Glossary
 
    NCEPLIBS
       The software libraries created and maintained by :term:`NCEP` that are required for running 
-      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__. 
+      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `spack-stack <https://github.com/JCSDA/spack-stack>`_. 
 
    NCEPLIBS-external
       A collection of third-party libraries required to build :term:`NCEPLIBS`, :term:`chgres_cube`, 
-      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`HPC-Stack`.  
+      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`spack-stack`.  
 
    NCL
       An interpreted programming language designed specifically for scientific data analysis and 
@@ -243,8 +240,7 @@ Glossary
       A central location in which files (e.g., data, code, documentation) are stored and managed. 
 
    RRFS
-      The `Rapid Refresh Forecast System <https://gsl.noaa.gov/focus-areas/unified_forecast_system/rrfs>`_ (RRFS) is NOAA's next-generation convection-allowing, rapidly-updated, ensemble-based data assimilation and forecasting system currently scheduled for operational implementation in 2024. It is designed to run forecasts on a 3-km :term:`CONUS` domain, see also `NOAA Rapid Refresh Forecast System (RRFS) <https://registry.opendata.aws/noaa-rrfs/>`__. Experimental data is currently available from the `AWS S3 NOAA-RRFS  <https://noaa-rrfs-pds.s3.amazonaws.com/index.html#rrfs_a/>`__ bucket for deterministic forecasts out to 60 hours at 00, 06, 12, and 18 UTC. Additionally, hourly forecasts out to 18 hours may be available for more recent RRFS model runs; the user needs to verify that data exists for needed dates.
-
+      The `Rapid Refresh Forecast System <https://gsl.noaa.gov/research/predictions>`_ (RRFS) is NOAA's next-generation convection-allowing, rapidly-updated, ensemble-based data assimilation and forecasting system currently scheduled for operational implementation in 2024. It is designed to run forecasts on a 3-km :term:`CONUS` domain, see also `NOAA Rapid Refresh Forecast System (RRFS) <https://registry.opendata.aws/noaa-rrfs/>`__. Experimental data is currently available from the `AWS S3 NOAA-RRFS  <https://noaa-rrfs-pds.s3.amazonaws.com/index.html#rrfs_a/>`__ bucket for deterministic forecasts out to 60 hours at 00, 06, 12, and 18 UTC. Additionally, hourly forecasts out to 18 hours may be available for more recent RRFS model runs; the user needs to verify that data exists for needed dates.
 
    SDF
       Suite Definition File. An external file containing information about the construction of a physics suite. It describes the schemes that are called, in which order they are called, whether they are subcycled, and whether they are assembled into groups to be called together.

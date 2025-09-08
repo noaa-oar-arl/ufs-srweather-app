@@ -9,10 +9,13 @@ import logging
 import subprocess
 import sqlite3
 import glob
+import time
 from textwrap import dedent
 from datetime import datetime
 from contextlib import closing
 from multiprocessing import Pool
+
+from uwtools.api.config import get_yaml_config
 
 sys.path.append("../../ush")
 
@@ -20,8 +23,6 @@ from calculate_cost import calculate_cost
 from python_utils import (
     cfg_to_yaml_str,
     flatten_dict,
-    load_config_file,
-    load_yaml_config
 )
 
 REPORT_WIDTH = 100
@@ -165,7 +166,7 @@ def calculate_core_hours(expts_dict: dict) -> dict:
             logging.warning(f"{vardefs_file}\ndoes not exist!\n\nDropping experiment from summary")
             continue
         logging.debug(f'Reading variable definitions file {vardefs_file}')
-        vardefs = load_yaml_config(vardefs_file)
+        vardefs = get_yaml_config(vardefs_file)
         vdf = flatten_dict(vardefs)
         cores_per_node = vdf["NCORES_PER_NODE"]
         for task in expts_dict[expt]:
@@ -267,6 +268,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
             logging.debug(p.stdout)
 
             #Run rocotorun again to get around rocotobqserver proliferation issue
+            time.sleep(60)
             p = subprocess.run(rocotorun_cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, text=True)
             logging.debug(p.stdout)
@@ -274,6 +276,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
             rocotorun_cmd = ["rocotorun", f"-w {rocoto_xml}", f"-d {rocoto_db}"]
             subprocess.run(rocotorun_cmd)
             #Run rocotorun again to get around rocotobqserver proliferation issue
+            time.sleep(60)
             subprocess.run(rocotorun_cmd)
 
     logging.debug(f"Reading database for experiment {name}, updating experiment dictionary")
@@ -432,7 +435,7 @@ def print_test_info(txtfile: str = "WE2E_test_info.txt") -> None:
             targettestname = targetfilename[7:-5]
             links[testname] = (testname, dirname, targettestname)
         else:
-            testdict[testname] = load_config_file(testfile)
+            testdict[testname] = get_yaml_config(testfile)
             testdict[testname]["directory"] = dirname
             testdict[testname]["cost"] = cost
             #Calculate number of forecasts for a cycling run
