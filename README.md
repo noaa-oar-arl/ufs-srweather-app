@@ -1,5 +1,7 @@
 # UFS Short-Range Weather Application
 
+ARL prototype experiment for AQMv8_p1.2 with updated GFSv17 physics and spun-up land/soil conditions.
+
 The Unified Forecast System (UFS) is a community-based, coupled, comprehensive Earth modeling system. NOAA's operational model suite for numerical weather prediction (NWP) is quickly transitioning to the UFS from a number of legacy modeling systems. The UFS enables research, development, and contribution opportunities within the broader Weather Enterprise (including government, industry, and academia). For more information about the UFS, visit the UFS Portal at https://ufs.epic.noaa.gov/.
 
 The UFS includes multiple applications (see a complete list at https://ufs.epic.noaa.gov/applications/) that support different forecast durations and spatial domains. This documentation describes the development branch of the UFS Short-Range Weather (SRW) Application, which targets predictions of atmospheric behavior on a limited spatial domain and on time scales from minutes to several days. The development branch of the application is continually evolving as the system undergoes open development. The latest SRW App release (v2.2.0) represents a snapshot of this continuously evolving system. 
