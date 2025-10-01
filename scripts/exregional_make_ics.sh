@@ -773,8 +773,9 @@ else
   mv gfs.bndy.nc ${INPUT_DATA}/${NET}.${cycle}${dot_ensmem}.gfs_bndy.tile${TILE_RGNL}.f000.nc
 fi
 
-# Use NCO ncks to modify the sfc_data file to overwrite soil state (from Mike Barlarge, only do this once at start of run and then comment out)   
-ncks -A -v stc,smc,slc,sheleg,snwdph "${SOILDIRNAME}/${SOILFILENAME}" "${COMOUT}/${NET}.${cycle}${dot_ensmem}.sfc_data.tile${TILE_RGNL}.halo${NH0}.nc"
+# Use NCO ncks to modify the sfc_data file to overwrite soil state (from Mike Barlarge)   
+# Comment idea out for now, as land/soil ICs would be needed every forecast cycel as otherwise once in beginning is not enough...
+#ncks -A -v stc,smc,slc,sheleg,snwdph "${SOILDIRNAME}/${SOILFILENAME}" "${COMOUT}/${NET}.${cycle}${dot_ensmem}.sfc_data.tile${TILE_RGNL}.halo${NH0}.nc"
 #
 #-----------------------------------------------------------------------
 #
