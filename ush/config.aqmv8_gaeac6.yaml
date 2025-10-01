@@ -8,7 +8,7 @@ workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
   EXPT_BASEDIR: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs
-  EXPT_SUBDIR: aqmv8p1.1_testbed_AQMNA13km_warmstart
+  EXPT_SUBDIR: aqmv8p1.2_testbed_AQMNA13km_warmstart
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v17_p8
   DATE_FIRST_CYCL: '2023040212'
@@ -31,7 +31,7 @@ nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
   RUN_default: aqm
-  PTMP: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs/aqmv8p1.1_testbed_AQMNA13km_warmstart
+  PTMP: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs/aqmv8p1.2_testbed_AQMNA13km_warmstart
 rocoto:
   tasks:
     taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/aqm_prep.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
