@@ -2,17 +2,17 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, warm-start
 user:
   RUN_ENVIR: community
-  MACHINE: gaeac6
+  MACHINE: GAEAC6
   ACCOUNT: bil-fire3
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
   EXPT_BASEDIR: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs
-  EXPT_SUBDIR: aqmv8p1_testbed_AQMNA13km_warmstart
+  EXPT_SUBDIR: AQMNA13km_warmstart_aqmv8_candev_canopy-off
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023040212'
-  DATE_LAST_CYCL: '2023043012'
+  DATE_LAST_CYCL: '2023040312'
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
@@ -23,67 +23,77 @@ workflow:
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
   COLDSTART: false      # set to true for cold start
-  WARMSTART_CYCLE_DIR: '/gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv7/aqm.v7.1.0a/20230402'  # for gaeac6
+  WARMSTART_CYCLE_DIR: '/gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv7/aqm.v7.1.0a/20230402'
+#  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/restart/2023111000 # for gaeac6
 #  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
 #  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
 #  WARMSTART_CYCLE_DIR: '/glade/work/chanhooj/SRW-AQM_DATA/aqm_data/restart/2023111000' # for derecho
+
+  # Note: comment the post.yaml task if HISTORY_NATIVE_GRID: true
+  taskgroups:
+    - parm/wflow/prep.yaml
+    - parm/wflow/aqm_prep.yaml
+    - parm/wflow/coldstart.yaml
+    - parm/wflow/post.yaml
 nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
   RUN_default: aqm
-  PTMP: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs/aqmv8p1_testbed_AQMNA13km_warmstart
-rocoto:
-  tasks:
-    taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/aqm_prep.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
-#    task_aqm_ics_ext:    # uncomment this in case of COLDSTART: true
-    metatask_run_ensemble:
-      task_run_fcst_mem#mem#:
-        walltime: 01:20:00
+  PTMP: /gpfs/f6/bil-fire3/scratch/Patrick.C.Campbell/expt_dirs/AQMNA13km_warmstart_aqmv8_candev_canopy-off
+#rocoto: # uncomment this section in case of COLDSTART: true
+#  tasks:
+#    task_aqm_ics_ext: !remove
 task_get_extrn_ics:
-  EXTRN_MDL_NAME_ICS: FV3GFS
-  FV3GFS_FILE_FMT_ICS: netcdf
-  EXTRN_MDL_ICS_OFFSET_HRS: 0
+  envvars:
+    EXTRN_MDL_NAME_ICS: FV3GFS
+    FV3GFS_FILE_FMT_ICS: netcdf
+    EXTRN_MDL_ICS_OFFSET_HRS: 0
 task_get_extrn_lbcs:
-  EXTRN_MDL_NAME_LBCS: FV3GFS
-  LBC_SPEC_INTVL_HRS: 6
-  FV3GFS_FILE_FMT_LBCS: netcdf
-  EXTRN_MDL_LBCS_OFFSET_HRS: 0
-#PPN_NEXUS_EMISSION is 96 by default and it is too many and will fail
+  envvars:
+    EXTRN_MDL_NAME_LBCS: FV3GFS
+    LBC_SPEC_INTVL_HRS: 6
+    FV3GFS_FILE_FMT_LBCS: netcdf
+    EXTRN_MDL_LBCS_OFFSET_HRS: 0
 task_nexus_emission:
-  PPN_NEXUS_EMISSION: 20
-  NNODES_NEXUS_EMISSION: 4
-  OMP_NUM_THREADS_NEXUS_EMISSION: 2
+  envvars:
+    PPN_NEXUS_EMISSION: 20
+    NNODES_NEXUS_EMISSION: 4
+    OMP_NUM_THREADS_NEXUS_EMISSION: 2
 task_run_fcst:
-  OMP_NUM_THREADS_RUN_FCST: 1
-  DT_ATMOS: 180
-  LAYOUT_X: 50
-  LAYOUT_Y: 34
-  BLOCKSIZE: 16
-  RESTART_INTERVAL: 12 24
+  fv3:
+    execution:
+      batchargs:
+        walltime: 01:20:00
+  envvars:
+    DT_ATMOS: 180
+    OMP_NUM_THREADS_RUN_FCST: 1
+    PRINT_ESMF: false
+    RESTART_INTERVAL: 12 24
+    DO_FCST_RESTART: false
+    # Uncomment to write history files on native FV3 cubed sphere grid. Note that the taskgroup
+    # post.yaml does not work with the native FV3 grid.
+#    HISTORY_NATIVE_GRID: true
   QUILTING: true
-  PRINT_ESMF: false
-  DO_FCST_RESTART: false
 task_run_post:
-  POST_OUTPUT_DOMAIN_NAME: 793
-  USE_CUSTOM_POST_CONFIG_FILE: false
+  envvars:
+    POST_OUTPUT_DOMAIN_NAME: 793
+    USE_CUSTOM_POST_CONFIG_FILE: false
 global:
   DO_ENSEMBLE: false
   NUM_ENS_MEMBERS: 2
   HALO_BLEND: 0
-task_point_source:
-  PT_SRC_SUBDIR: "NEMO/NEI2019/v2023-03/PT"
 cpl_aqm_parm:
   CPL_AQM: true
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   DO_AQM_DUST: true
-  DO_AQM_CANOPY: true
+  DO_AQM_CANOPY: false
   DO_AQM_PRODUCT: true
   DO_AQM_SAVE_AIRNOW_HIST: false
   DO_AQM_SAVE_FIRE: false
   AQM_BIO_FILE: BEIS_RRFScmaq_C775.ncf
   AQM_DUST_FILE_PREFIX: FENGSHA_p8_10km_inputs
-  AQM_DUST_FILE_SUFFIX: .nc  
+  AQM_DUST_FILE_SUFFIX: .nc
   AQM_CANOPY_FILE_PREFIX: gfs.t12z.geo
   AQM_CANOPY_FILE_SUFFIX: .canopy_regrid.nc
   COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
