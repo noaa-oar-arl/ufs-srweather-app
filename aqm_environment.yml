@@ -4,6 +4,7 @@ channels:
   - ufs-community
 dependencies:
   - esmpy
+  - nco
   - netcdf4=1.6.*
   - numpy=1.23.*
   - pylint=2.17*
