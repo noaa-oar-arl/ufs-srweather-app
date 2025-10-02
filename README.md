@@ -1,6 +1,24 @@
 # UFS Short-Range Weather Application
 
-ARL prototype experiment for AQMv8_p1.2 with updated GFSv17 physics and spun-up land/soil conditions.
+ARL prototype experiment for AQMv8_p1.2 with updated GFSv17 physics and spun-up land/soil conditions on Gaea C6.
+
+Additional workaround to avoid mysterious libstdcxx-ng libarary errors with nexus_emissions task error on C6 below:
+
+Before generating workflow run, follow steps to update libstdcxx-ng packages in base conda environment on C6.
+
+module use /path/to/ufs-srweather-app/modulefiles
+module load wflow_gaeac6
+
+conda activate srw_app
+conda activate base
+conda update libstdcxx-ng
+conda activate srw_app
+
+cd ush
+cp config.aqmv8_gaeac6.yaml config.yaml
+
+./generate_FV3LAM_wflow.py
+
 
 The Unified Forecast System (UFS) is a community-based, coupled, comprehensive Earth modeling system. NOAA's operational model suite for numerical weather prediction (NWP) is quickly transitioning to the UFS from a number of legacy modeling systems. The UFS enables research, development, and contribution opportunities within the broader Weather Enterprise (including government, industry, and academia). For more information about the UFS, visit the UFS Portal at https://ufs.epic.noaa.gov/.
 
