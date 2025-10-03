@@ -412,7 +412,6 @@
 "gfs_dyn",         "svmt4",         "svmt4",         "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "svmt5",         "svmt5",         "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "svmt6",         "svmt6",         "fv3_history",  "all",  .false.,  "none",  2
-"gfs_dyn",          "co",            "co",            "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "o3_ave",        "o3_ave",        "fv3_history",   "all",  .false.,  "none",  2
 "gfs_dyn",         "no_ave",        "no_ave",        "fv3_history",   "all",  .false.,  "none",  2
 "gfs_dyn",         "no2_ave",       "no2_ave",       "fv3_history",   "all",  .false.,  "none",  2
