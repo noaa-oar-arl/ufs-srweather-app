@@ -106,10 +106,10 @@ fi
 # All Datasets in that file need to be placed here as it will link the files
 # necessary to that folder.  In the future this will be done by a get_nexus_input
 # script
-#If both NEI2016 and NEI2019 are FALSE, it defaults to NEI2016.
+#If both NEI2016 and NEI2022 are FALSE, it defaults to NEI2016.
 NEI2016="FALSE"
-NEI2019="FALSE"
-NEI2019_GLOBTEMPO="TRUE"
+NEI2022="FALSE"
+NEI2022_GLOBTEMPO="TRUE"
 TIMEZONES="TRUE"
 CEDS="TRUE"
 HTAP="TRUE"
@@ -140,17 +140,17 @@ if [ "${NEI2016}" = "TRUE" ]; then  #Use NEI2016
   else
     cp -p ${PARMsrw}/nexus_config/cmaq/*.rc ${DATA}
   fi
-elif [ "${NEI2019}" = "TRUE" ]; then  #Use NEI2019
+elif [ "${NEI2022}" = "TRUE" ]; then  #Use NEI2022
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
-    cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2019/*.rc ${DATA}
+    cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2022/*.rc ${DATA}
   else
-    cp -p ${PARMsrw}/nexus_config/cmaq_nei2019/*.rc ${DATA}
+    cp -p ${PARMsrw}/nexus_config/cmaq_nei2022/*.rc ${DATA}
   fi
-elif [ "${NEI2019_GLOBTEMPO}" = "TRUE" ]; then  #Use NEI2019 with updated global
+elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then  #Use NEI2022 with updated global
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
-    cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2019_globtempo/*.rc ${DATA}
+    cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2022_globtempo/*.rc ${DATA}
   else
-    cp -p ${PARMsrw}/nexus_config/cmaq_nei2019_globtempo/*.rc ${DATA}
+    cp -p ${PARMsrw}/nexus_config/cmaq_nei2022_globtempo/*.rc ${DATA}
   fi
 else #Default to NEI2016 Configs
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
@@ -278,41 +278,41 @@ if [ "${NEI2016}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 #
-elif [ "${NEI2019}" = "TRUE" ]; then 
+elif [ "${NEI2022}" = "TRUE" ]; then 
   mkdir -p ${DATAinput}/NEMO
-  mkdir -p ${DATAinput}/NEMO/NEI2019
-  mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03
-  mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2023-03"
+  mkdir -p ${DATAinput}/NEMO/NEI2022
+  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10
+  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10/${MM}
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2025-10"
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="FATAL ERROR Call to python script \"nexus_nei2019_linker.py\" failed."
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_control_tilefix.py -f ${DATA}/NEXUS_Config.rc -t ${DATA}/HEMCO_sa_Time.rc # -d ${yyyymmdd}
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_control_tilefix.py -f ${DATA}/NEXUS_Config.rc -t ${DATA}/HEMCO_sa_Time.rc # -d ${yyyymmdd}
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="FATAL ERROR Call to python script \"nexus_nei2019_control_tilefix.py\" failed."
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_control_tilefix.py\" failed."
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
-elif [ "${NEI2019_GLOBTEMPO}" = "TRUE" ]; then
+elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then
   mkdir -p ${DATAinput}/NEMO
-  mkdir -p ${DATAinput}/NEMO/NEI2019
-  mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03
-  mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2023-03"
+  mkdir -p ${DATAinput}/NEMO/NEI2022
+  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10
+  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10/${MM}
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2025-10"
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="FATAL ERROR Call to python script \"nexus_nei2019_linker.py\" failed."
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_control_tilefix.py -f ${DATA}/NEXUS_Config.rc -t ${DATA}/HEMCO_sa_Time.rc # -d ${yyyymmdd}
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_control_tilefix.py -f ${DATA}/NEXUS_Config.rc -t ${DATA}/HEMCO_sa_Time.rc # -d ${yyyymmdd}
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="FATAL ERROR Call to python script \"nexus_nei2019_control_tilefix.py\" failed."
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_control_tilefix.py\" failed."
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
@@ -344,7 +344,7 @@ if [ "${MASKS}" = "TRUE" ]; then # MASKS
   ln -sf ${FIXemis}/MASKS ${DATAinput}
 fi
 
-if [ "${NEI2019_GLOBTEMPO}" = "TRUE" ]; then # CAMS-TEMPO
+if [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then # CAMS-TEMPO
   ln -sf ${FIXemis}/CAMS-TEMPO ${DATAinput}
 fi
 
