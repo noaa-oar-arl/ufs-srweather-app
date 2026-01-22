@@ -513,9 +513,9 @@ FV3_GFS_v15p2:
     shal_cnv: True
     shinhong: False
     ttendlim: null
-    xkzm_h: 1.0
-    xkzm_m: 1.0
-    xkzminv: 0.3
+    xkzm_h: 0.1
+    xkzm_m: 0.1
+    xkzminv: 0.1
   surf_map_nml: null
 
 FV3_GFS_v15_thompson_mynn_lam3km:
