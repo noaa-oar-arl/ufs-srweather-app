@@ -513,9 +513,9 @@ FV3_GFS_v15p2:
     shal_cnv: True
     shinhong: False
     ttendlim: null
-    xkzm_h: 0.1
-    xkzm_m: 0.1
-    xkzminv: 0.1
+    xkzm_h: 1.0
+    xkzm_m: 1.0
+    xkzminv: 0.3
   surf_map_nml: null
 
 FV3_GFS_v15_thompson_mynn_lam3km:
@@ -631,9 +631,9 @@ FV3_GFS_v16:
     psautco: [0.0008, 0.0005]
     satmedmf: True
     shinhong: null
-    xkzminv: null
-    xkzm_m: null
-    xkzm_h: null
+    xkzminv: 0.1  
+    xkzm_m: 0.1  
+    xkzm_h: 0.1
   mpp_io_nml:
     deflate_level: 1
     shuffle: 1
@@ -718,8 +718,11 @@ FV3_GFS_v17_p8:
     ltaerosol: False
     min_lakeice: 0.15
     min_seaice: 0.15
-    qdiag3d: False
+    qdiag3d: true
     ras: False
+    xkzminv: 0.1
+    xkzm_m: 0.1
+    xkzm_h: 0.1
     satmedmf: True
     sedi_semi: True
     shal_cnv: True
