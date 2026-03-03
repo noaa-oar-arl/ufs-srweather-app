@@ -83,7 +83,8 @@ global:
   NUM_ENS_MEMBERS: 2
   HALO_BLEND: 0
 task_point_source:
-  PT_SRC_SUBDIR: "NEMO/NEI2022/v2025-10/PT"
+  envvars:
+    PT_SRC_SUBDIR: "NEMO/NEI2022/v2025-10/PT"
 cpl_aqm_parm:
   CPL_AQM: true
   DO_AQM_CHEM_LBCS: true
