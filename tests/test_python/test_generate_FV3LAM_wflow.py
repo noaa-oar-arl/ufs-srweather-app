@@ -3,12 +3,14 @@ ush directory """
 
 #pylint: disable=invalid-name
 import os
+import shutil
 import sys
 import unittest
 from multiprocessing import Process
+from pathlib import Path
+from typing import Union
 
 from python_utils import (
-    cp_vrfy,
     run_command,
     define_macos_utilities,
     set_env_var,
@@ -19,15 +21,30 @@ from generate_FV3LAM_wflow import generate_FV3LAM_wflow
 
 class Testing(unittest.TestCase):
     """ Class to run the tests. """
-    def test_generate_FV3LAM_wflow(self):
+    def test_generate_FV3LAM_wflow_community(self) -> None:
 
         """ Test that a sample config can successfully
         lead to the creation of an experiment directory. No jobs are
         submitted. """
 
+        src_config_yaml_filename = "config.community.yaml"
+        self._run_generate_FV3LAM_wflow_test_(src_config_yaml_filename)
+
+    def test_generate_FV3LAM_wflow_aqm_use_case(self) -> None:
+        """Test generating a workflow for an AQM use case."""
+        src_config_yaml_filename = Path("aqm-use-cases/config.aqm.AEROMMA.yaml")
+        self._run_generate_FV3LAM_wflow_test_(src_config_yaml_filename)
+
+    def setUp(self) -> None:
+        define_macos_utilities()
+        set_env_var("DEBUG", False)
+        set_env_var("VERBOSE", False)
+
+    @staticmethod
+    def _run_generate_FV3LAM_wflow_test_(src_config_yaml_filename: Union[str, Path]) -> None:
         # run workflows in separate process to avoid conflict between community and nco settings
         def run_workflow(USHdir, logfile):
-            p = Process(target=generate_FV3LAM_wflow, args=(USHdir,"config.yaml",logfile))
+            p = Process(target=generate_FV3LAM_wflow, args=(USHdir, "config.yaml", logfile))
             p.start()
             p.join()
             exit_code = p.exitcode
@@ -36,35 +53,28 @@ class Testing(unittest.TestCase):
                     print(fin.read())
                 sys.exit(exit_code)
 
-        test_dir = os.path.dirname(os.path.abspath(__file__))
-        USHdir = os.path.join(test_dir, "..", "..", "ush")
         logfile = "log.generate_FV3LAM_wflow"
         sed = get_env_var("SED")
-
         # create a build settings file if needed
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        USHdir = os.path.join(test_dir, "..", "..", "ush")
         EXECdir = os.path.join(USHdir, "..", "exec")
         build_settings_file = os.path.join(EXECdir, "build_settings.yaml")
         if not os.path.exists(build_settings_file):
             os.makedirs(EXECdir, exist_ok=True)
             with open(build_settings_file, 'w', encoding='utf-8') as build_settings:
-                build_settings.write('Machine: linux\n')
+                build_settings.write('Machine: LINUX\n')
                 build_settings.write('Application:\n')
+        src_config_yaml = Path(USHdir) / src_config_yaml_filename
+        shutil.copy(src_config_yaml, f"{USHdir}/config.yaml")
 
-        # community test case
-        cp_vrfy(f"{USHdir}/config.community.yaml", f"{USHdir}/config.yaml")
-        run_command(
-            f"""{sed} -i 's/MACHINE: hera/MACHINE: linux/g' {USHdir}/config.yaml"""
-        )
         # If running CI, point config.yaml to correct location for fix files
-        if fix_files:=get_env_var("CI_FIX_FILES"):
-            machine_file=f"{USHdir}/machine/linux.yaml"
-            sed_command=f"{sed} -i 's|/home/username/DATA/UFS|{fix_files}|g' "\
-                        f"{machine_file}"
+        if fix_files := get_env_var("CI_FIX_FILES"):
+            run_command(
+                f"""{sed} -i 's/MACHINE: HERA/MACHINE: LINUX/g' {USHdir}/config.yaml"""
+            )
+            machine_file = f"{USHdir}/machine/linux.yaml"
+            sed_command = f"{sed} -i 's|/home/username/DATA/UFS|{fix_files}|g' " \
+                          f"{machine_file}"
             run_command(sed_command)
-
         run_workflow(USHdir, logfile)
-
-    def setUp(self):
-        define_macos_utilities()
-        set_env_var("DEBUG", False)
-        set_env_var("VERBOSE", False)

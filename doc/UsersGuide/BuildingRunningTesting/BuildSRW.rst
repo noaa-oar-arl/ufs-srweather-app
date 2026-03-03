@@ -8,7 +8,7 @@ The Unified Forecast System (:term:`UFS`) Short-Range Weather (SRW) Application 
 
 .. attention::
 
-   The SRW Application has :srw-wiki:`four levels of support <Supported-Platforms-and-Compilers>`. The steps described in this chapter will work most smoothly on preconfigured (Level 1) systems. This chapter also provides guidance for running the SRW App on other systems (including generic Linux/Mac systems), but the user may need to perform additional steps and/or troubleshooting. 
+   The SRW Application has :srw-wiki:`four levels of support <Supported-Platforms-and-Compilers>`. The steps described in this chapter will work most smoothly on preconfigured (Level 1) systems.
 
 .. note::
    The :ref:`container approach <QuickstartC>` is recommended for a smoother first-time build and run experience. Building without a container may allow for more customization. However, the non-container approach requires more in-depth system-based knowledge, especially on Level 3 and 4 systems, so it is less appropriate for beginners. 
@@ -35,43 +35,28 @@ Install the Prerequisite Software Stack
 
 Users on any sufficiently up-to-date machine with a UNIX-based operating system should be able to install the prerequisite software stack and run the SRW Application. However, a list of prerequisites is available in :numref:`Section %s <software-prereqs>` for reference. Users should install or update their system as required before attempting to install the software stack. 
 
-Currently, installation of the prerequisite software stack is supported via spack-stack on most systems. :term:`Spack-stack` is a :term:`repository` that provides a Spack-based system to build the software stack required for `UFS <https://ufs.epic.noaa.gov/>`_ applications such as the SRW App. Spack-stack is the software stack validated by the UFS Weather Model (:term:`WM`), and the SRW App has likewise shifted to spack-stack for most Level 1 systems.
+Currently, installation of the prerequisite software stack is supported via spack-stack on most systems. :term:`spack-stack` is a :term:`repository` that provides a spack-based system to build the software stack required for `UFS <https://ufs.epic.noaa.gov/>`_ applications such as the SRW App. Spack-stack is the software stack validated by the UFS Weather Model (:term:`WM`), and the SRW App has likewise shifted to spack-stack for most Level 1 systems.
 
 .. hint::
-   Skip the spack-stack installation if working on a :srw-wiki:`Level 1 system <Supported-Platforms-and-Compilers>` (e.g., Hera, Jet, Derecho, NOAA Cloud), and :ref:`continue to the next section <DownloadSRWApp>`.
+   Skip the spack-stack installation if working on a :srw-wiki:`Level 1 system <Supported-Platforms-and-Compilers>` (e.g., Hera, Hercules, Orion, Ursa, Derecho, NOAA Cloud), and :ref:`continue to the next section <DownloadSRWApp>`.
 
 Background
 ----------------
 
-SRW App components, including the UFS :term:`WM`, draw on over 50 code libraries to run. These libraries range from libraries developed in-house at NOAA (e.g., NCEPLIBS, FMS) to libraries developed by NOAA's partners (e.g., PIO, ESMF) to truly third-party libraries (e.g., netCDF). Individual installation of these libraries is not practical, so `spack-stack <https://github.com/JCSDA/spack-stack>`__ was developed as a central installation system to ensure that the infrastructure environment across multiple platforms is as similar as possible. Installation of spack-stack (or its predecessor, :term:`HPC-Stack`) is required to run the SRW App.
+SRW App components, including the UFS :term:`WM`, draw on over 50 code libraries to run. These libraries range from libraries developed in-house at NOAA (e.g., NCEPLIBS, FMS) to libraries developed by NOAA's partners (e.g., PIO, ESMF) to truly third-party libraries (e.g., netCDF). Individual installation of these libraries is not practical, so `spack-stack <https://github.com/JCSDA/spack-stack>`__ was developed as a central installation system to ensure that the infrastructure environment across multiple platforms is as similar as possible. Installation of spack-stack is required to run the SRW App.
 
 Instructions
 -------------------------
 
-.. attention::
+Users working on systems that fall under :srw-wiki:`Support Levels 2-4 <Supported-Platforms-and-Compilers>` will need to install spack-stack the first time they try to build applications (such as the SRW App) that depend on it. Users can build the stack on their local system or use the centrally maintained stacks on each HPC platform if they are working on a Level 1 system.
 
-   Spack-stack is the fully-supported software stack validated by the UFS WM as of `PR #1707 <https://github.com/ufs-community/ufs-weather-model/pull/1707>`__ on August 24, 2023. UFS applications are therefore shifting to :term:`spack-stack`, too. When all systems have shifted to spack-stack, support for HPC-Stack will be deprecated. Users are encouraged to check out `spack-stack <https://github.com/JCSDA/spack-stack>`__ to prepare for this shift in support from HPC-Stack to spack-stack even if their system currently has support for HPC-Stack. 
-
-   As of the v2.2.0 release, spack-stack is supported in the SRW App on most Level 1 systems with the exception of Derecho, which uses HPC-Stack. Transition to spack-stack is underway for Derecho. Users on generic MacOS and Linux systems will find HPC-Stack-based modulefiles in the v2.2.0 release but can expect that these will also shift to spack-stack in the ``develop`` branch in the coming months. 
-
-Users working on systems that fall under :srw-wiki:`Support Levels 2-4 <Supported-Platforms-and-Compilers>` will need to install spack-stack or HPC-Stack the first time they try to build applications (such as the SRW App) that depend on it. Users can build the stack on their local system or use the centrally maintained stacks on each HPC platform if they are working on a Level 1 system. Before installing spack-stack or HPC-Stack, users on both Linux and MacOS systems should set the stack size to "unlimited" (if allowed) or to the largest possible value:
-
-.. code-block:: console
-
-   # Linux, if allowed
-   ulimit -s unlimited
-
-   # MacOS, this corresponds to 65MB
-   ulimit -S -s unlimited
-
-For a detailed description of installation options, see :doc:`spack-stack instructions for configuring the stack on a new platform <spack-stack:NewSiteConfigs>` or :ref:`HPC-Stack installation instructions <InstallBuildHPCstack>`.
-
-After completing installation, continue to the :ref:`next section <DownloadSRWApp>` to download the UFS SRW Application Code. 
+For a detailed description of installation options, see the `New Site Configs Wiki <https://github.com/JCSDA/spack-stack/wiki/New-Site-Configs>`__
 
 .. _DownloadSRWApp:
 
 Download the UFS SRW Application Code
 ======================================
+
 The SRW Application source code is publicly available on GitHub. To download the SRW App code, clone the |branch| branch of the repository:
 
 .. include:: ../../doc-snippets/clone.rst
@@ -83,8 +68,6 @@ The cloned repository contains the configuration files and sub-directories shown
 
     # In a bash shell, run:
     export SRW=$HOME/ufs-srweather-app
-    # In a csh shell, run: 
-    setenv SRW $HOME/ufs-srweather-app
 
 .. _FilesAndSubDirs:
 
@@ -100,7 +83,7 @@ The cloned repository contains the configuration files and sub-directories shown
      - SRW App build script
    * - devclean.sh
      - Convenience script that can be used to clean up code if something goes wrong when checking out externals or building the application.
-   * - docs
+   * - doc
      - Contains release notes, documentation, and User's Guide
    * - environment.yml
      - Contains information on the package versions required for the regional workflow environment.
@@ -183,7 +166,7 @@ On Level 1 systems for which a modulefile is provided under the ``modulefiles`` 
 
 .. include:: ../../doc-snippets/devbuild.rst
 
-Directly following the release of SRW v2.2.0, the App will install miniconda and SRW environments as part
+Starting with SRW v2.2.0, the App installs miniconda and SRW environments as part
 of the build process. The location defaults to inside the SRW clone in ``ufs-srweather-app/conda``,
 however users can set any path on their system using the ``--conda-dir`` flag. If conda is already
 installed in that location, conda installation will be skipped. The following example uses a
@@ -195,9 +178,6 @@ pre-installed conda installation at ``/path/to/conda``
 
 Running ``./devbuild.sh`` without any arguments will show the usage statement for all available
 flags and targets for this script.
-
-.. note::
-   Although build modulefiles exist for generic Linux and MacOS machines, users will need to alter these according to the instructions in Sections :numref:`%s <CMakeApproach>` & :numref:`%s <MacLinuxDetails>`. Users on these systems may have more success building the SRW App with the :ref:`CMake Approach <CMakeApproach>` instead. 
 
 If compiler auto-detection fails for some reason, specify it using the ``--compiler`` argument. For example:
 
@@ -244,7 +224,7 @@ If the ``devbuild.sh`` build method did *not* work, or if users are not on a sup
    | global_cycle           | Updates the GFS surface conditions using external snow and sea ice analyses     |
    +------------------------+---------------------------------------------------------------------------------+
    | global_equiv_resol     | Calculates a global, uniform, cubed-sphere equivalent resolution for the        |
-   |                        | regional Extended Schmidt Gnomonic (ESG) grid                                   |
+   |                        | regional Extended Schmidt Gnomonic (:term:`ESG`) grid                           |
    +------------------------+---------------------------------------------------------------------------------+
    | inland                 | Creates an inland land mask by determining inland (i.e., non-coastal) points    |
    |                        | and assigning a value of 1. Default value is 0.                                 |
@@ -262,12 +242,12 @@ If the ``devbuild.sh`` build method did *not* work, or if users are not on a sup
    | orog_gsl               | Creates orographic statistics fields required for the orographic drag suite     |
    |                        | developed by NOAA's Global Systems Laboratory (GSL)                             |
    +------------------------+---------------------------------------------------------------------------------+
-   | regional_esg_grid      | Generates an ESG regional grid based on a user-defined namelist                 |
+   | regional_esg_grid      | Generates an :term:`ESG` regional grid based on a user-defined namelist         |
    +------------------------+---------------------------------------------------------------------------------+
    | sfc_climo_gen          | Creates surface climatology fields from fixed files for use in ``chgres_cube``  |
    +------------------------+---------------------------------------------------------------------------------+
    | shave                  | Shaves the excess halo rows down to what is required for the lateral boundary   |
-   |                        | conditions (LBCs) in the orography and grid files                               |
+   |                        | conditions (:term:`LBCs`) in the orography and grid files                       |
    +------------------------+---------------------------------------------------------------------------------+
    | ufs_model              | UFS Weather Model executable                                                    |
    +------------------------+---------------------------------------------------------------------------------+
@@ -290,13 +270,12 @@ Set Up the Build Environment
 
 .. attention::
    * If users successfully built the executables listed in :numref:`Table %s <ExecDescription>`, they can skip to step :numref:`Section %s: Running the SRW App <RunSRW>`.
-   * Users who want to build the SRW App on MacOS or generic Linux systems should skip to :numref:`Section %s <MacLinuxDetails>` and follow the approach there. 
 
 If the ``devbuild.sh`` approach failed, users need to set up their environment to run a workflow on their specific platform. First, users should make sure ``Lmod`` is the app used for loading modulefiles. This is the case on most Level 1 systems; however, on systems such as Gaea, the default modulefile loader is from Cray and must be switched to Lmod. For example, on Gaea, users with a bash shell environment can run:
 
 .. code-block:: console
 
-   source /path/to/ufs-srweather-app/etc/lmod-setup.sh gaea
+   source /path/to/ufs-srweather-app/etc/lmod-setup.sh gaeac6
 
 .. note::
 
@@ -311,7 +290,7 @@ From here, ``Lmod`` is ready to load the modulefiles needed by the SRW App. Thes
 
 where ``/path/to/ufs-srweather-app/modulefiles/`` is the full path to the ``modulefiles`` directory.
 
-This will work on Level 1 systems, where a modulefile is available in the ``modulefiles`` directory. Users on Level 2-4 systems (including generic Linux/MacOS systems) will need to modify an appropriate ``build_<platform>_<compiler>`` modulefile. One of the current ``build_<platform>_<compiler>`` modulefiles can be copied and used as a template. However, users will need to adjust certain environment variables in their modulefile, such as the path to the software stack, so that the SRW App can find and load the appropriate modules. 
+This will work on Level 1 systems, where a modulefile is available in the ``modulefiles`` directory. Users on Level 2-4 systems will need to modify an appropriate ``build_<platform>_<compiler>`` modulefile. One of the current ``build_<platform>_<compiler>`` modulefiles can be copied and used as a template. However, users will need to adjust certain environment variables in their modulefile, such as the path to the software stack, so that the SRW App can find and load the appropriate modules. 
 
 .. note::
 
@@ -344,76 +323,14 @@ The build will take a few minutes to complete. When it starts, a random number i
 
    If you see the ``build.out`` file, but there is no ``ufs-srweather-app/exec`` directory, wait a few more minutes for the build to complete.
 
+There are a few additional steps needed to successfully run the SRW App that is built with CMake. The ``build_settings.yaml`` will need to be copied or symlinked from ``ufs-srweather-app/build`` to ``ufs-srweather-app/exec``, and the platform name needs to be added to the "Machine" variable in the ``build_settings.yaml`` file.
+
 .. _install-uw:
 
 Install ``uwtools``
 ^^^^^^^^^^^^^^^^^^^^
 
-The :uw:`UW Tools documentation <sections/user_guide/installation.html>` has the most up-to-date installation instructions. Users should refer to that documentation as authoritative. The UW team welcomes questions in its :uw-repo:`GitHub Discussions <discussions>` forum. See :numref:`Section %s <uwtools>` for more information on ``uwtools`` in the SRW App.
-
-For convenience, a suggested procedure is included below for users who do not have ``uwtools`` or ``conda`` installed. However, in the event of problems, refer to the UW Tools documentation and forums. 
-
-#. Run ``uname -om`` to determine the system's operating system and architecture.
-#. Go to the `Miniforge releases page <https://github.com/conda-forge/miniforge/releases>`_ and download the desired version of Miniforge. For example:
-
-   .. code-block:: console
-      
-      wget https://github.com/conda-forge/miniforge/releases/download/24.11.2-1/Miniforge3-24.11.2-1-Linux-x86_64.sh
-
-#. Run the shell script to install ``conda``. For example:
-
-   .. code-block:: console
-
-      bash Miniforge3-24.11.2-1-Linux-x86_64.sh -bfp $PWD/conda 
-   
-   Users should replace ``Miniforge3-24.11.2-1-Linux-x86_64.sh`` with the name of the file they downloaded. 
-#. Remove the installation script, e.g., by running: ``rm Miniforge3-24.11.2-1-Linux-x86_64.sh``.
-#. Run: 
-
-   .. code-block:: console
-      
-      source conda/etc/profile.d/conda.sh
-      conda activate
-      cd ufs-srweather-app/conda/envs
-      conda create -n srw_app -c ufs-community -c conda-forge --override-channels uwtools=<X.Y.Z>
-   
-   where ``<X.Y.Z>`` is the desired version number. (It may be necessary to create the ``conda/envs`` directory within the ``ufs-srweather-app`` using the ``mkdir`` command if it does not already exist.)
-   Hit ``y`` to continue installation. 
-
-.. _MacLinuxDetails:
-
-Additional Details for Building on MacOS or Generic Linux
-------------------------------------------------------------
-
-.. note::
-    Users who are **not** building the SRW App on MacOS or generic Linux platforms may skip to :numref:`Section %s <BuildExecutables>` to finish building the SRW App or continue to :numref:`Section %s <RunSRW>` to configure and run an experiment if they have already built the App. 
-
-The SRW App can be built on MacOS and generic Linux machines after the prerequisite software has been installed on these systems (via :term:`HPC-Stack` or :term:`spack-stack`). The installation for MacOS is architecture-independent and has been tested using both x86_64 and M1 chips (running natively). The following configurations for MacOS have been tested:
-
-   #. MacBookPro 2019, 2.4 GHz 8-core Intel Core i9 (x86_64), OS Monterey 12.6.1, 32 GB RAM; GNU compiler suite v.12.3.0 (gcc, gfortran, g++); openmpi/4.1.5
-   #. MacBookAir 2020, M1 chip (arm64, running natively), 4+4 cores, OS Ventura 13.0.1, 16 GB RAM; GNU compiler suite v.12.3.0 (gcc, gfortran, g++); openmpi/4.1.5
-
-Several Linux builds have been tested on systems with x86_64 architectures.
-
-The ``$SRW/modulefiles/build_<platform>_gnu.lua`` modulefile (where ``<platform>`` is ``macos`` or ``linux``) is written as a Lmod module in the Lua language. It can be loaded once the Lmod module environment has been initialized (which should have happened even prior to :ref:`installing HPC-Stack <StackInfo>`). The ``build_<platform>_gnu`` modulefile lists the location of the HPC-Stack modules, loads the meta-modules and modules, sets serial and parallel compilers, additional flags, and any environment variables needed for building the SRW App. The modulefile must be modified to include the absolute path to the user's HPC-Stack installation:
-
-.. code-block:: console
-
-   - This path should point to your HPCstack installation directory
-   local HPCstack="/Users/username/hpc-stack/install"
-   
-Linux users need to configure the ``ufs-srweather-app/etc/lmod-setup.sh`` file for the ``linux`` case and set the ``BASH_ENV`` variable to point to the Lmod initialization script. There is no need to modify this script for the ``macos`` case presuming that Lmod followed a standard installation procedure using the Homebrew package manager for MacOS.
-
-Next, users must source the Lmod setup file, just as they would on other systems, and load the modulefiles needed for building and running the SRW App:
-
-.. code-block:: console
-   
-   source /path/to/ufs-srweather-app/etc/lmod-setup.sh <platform>
-   module use /path/to/ufs-srweather-app/modulefiles
-   module load build_<platform>_gnu
-   export LDFLAGS+=" -L${MPI_ROOT}/lib "
-
-The last line is primarily needed for the MacOS platforms.
+For detailed installation instructions, refer to the :uw:`UW Tools installation guide <sections/user_guide/installation.html>`. The UW team welcomes questions in its :uw-repo:`GitHub Discussions <discussions>` forum. See :numref:`Section %s <uwtools>` for more information on ``uwtools`` in the SRW App.
 
 Run an Experiment
 =====================

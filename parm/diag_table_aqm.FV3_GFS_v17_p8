@@ -46,27 +46,27 @@
 "gfs_dyn",   "ps",            "pressfc",       "fv3_history",        "all",  .false.,  "none",  2
 "gfs_dyn",   "hs",            "hgtsfc",        "fv3_history",        "all",  .false.,  "none",  2
 # IVAI: diffusivities t=heat/u=momentum
-"gfs_phys",    "dkt"     ,       "dkt",          "fv3_history",  "all", .false., "none", 2
-"gfs_phys",    "dku"     ,       "dku",          "fv3_history",  "all", .false., "none", 2
+#"gfs_phys",    "dkt"     ,       "dkt",          "fv3_history",  "all", .false., "none", 2
+#"gfs_phys",    "dku"     ,       "dku",          "fv3_history",  "all", .false., "none", 2
 #IVAI: Auxiliary 3D
-"gfs_phys",    "aux3d_01",       "aux3d_01",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_02",       "aux3d_02",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_03",       "aux3d_03",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_04",       "aux3d_04",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_05",       "aux3d_05",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_06",       "aux3d_06",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_07",       "aux3d_07",     "fv3_history", "all", .false., "none",  2
-"gfs_phys",    "aux3d_08",       "aux3d_08",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_01",       "aux3d_01",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_02",       "aux3d_02",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_03",       "aux3d_03",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_04",       "aux3d_04",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_05",       "aux3d_05",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_06",       "aux3d_06",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_07",       "aux3d_07",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_08",       "aux3d_08",     "fv3_history", "all", .false., "none",  2
 #IVAI: PBL tendencies
-"gfs_phys",  "dtend_temp_pbl", "dtend_temp_pbl", "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_qv_pbl",   "dtend_qv_pbl",   "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_u_pbl",    "dtend_u_pbl",    "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_v_pbl",    "dtend_v_pbl",    "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_o3_pbl",   "dtend_o3_pbl",   "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_sgs_tke_pbl",  "dtend_sgs_tke_pbl",  "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_no2_cpl_pbl",  "dtend_no2_cpl_pbl",  "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_no_cpl_pbl",  "dtend_no_cpl_pbl",  "fv3_history", "all", .false., "none",  2
-"gfs_phys",  "dtend_o3_cpl_pbl",  "dtend_o3_cpl_pbl",  "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_temp_pbl", "dtend_temp_pbl", "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_qv_pbl",   "dtend_qv_pbl",   "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_u_pbl",    "dtend_u_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_v_pbl",    "dtend_v_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_o3_pbl",   "dtend_o3_pbl",   "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_sgs_tke_pbl",  "dtend_sgs_tke_pbl",  "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_no2_cpl_pbl",  "dtend_no2_cpl_pbl",  "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_no_cpl_pbl",  "dtend_no_cpl_pbl",  "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_o3_cpl_pbl",  "dtend_o3_cpl_pbl",  "fv3_history", "all", .false., "none",  2
 #IVAI
 "gfs_phys",  "frzr",          "frzr",          "fv3_history2d",      "all",  .false.,  "none",  2
 "gfs_phys",  "frzrb",         "frzrb",         "fv3_history2d",      "all",  .false.,  "none",  2
@@ -239,12 +239,12 @@
 "gfs_sfc",     "d_conv",      "dconv",         "fv3_history2d",      "all",  .false.,  "none",  2
 "gfs_sfc",     "qrain",       "qrain",         "fv3_history2d",      "all",  .false.,  "none",  2
 #IVAI: Auxiliary 2D
-"gfs_phys",    "aux2d_01",     "aux2d_01",      "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_phys",    "aux2d_02",     "aux2d_02",      "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_phys",    "aux2d_03",     "aux2d_03",      "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_phys",    "aux2d_04",     "aux2d_04",      "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_phys",    "aux2d_05",     "aux2d_05",      "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_phys",    "aux2d_06",     "aux2d_06",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_01",     "aux2d_01",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_02",     "aux2d_02",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_03",     "aux2d_03",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_04",     "aux2d_04",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_05",     "aux2d_05",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_06",     "aux2d_06",      "fv3_history2d",  "all",  .false.,  "none",  2
 #IVAI
 ###
 # chemical tracers advected by FV3
@@ -443,8 +443,8 @@
 "gfs_dyn",         "no2_ave",       "no2_ave",       "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "pm25_ave",      "pm25_ave",      "fv3_history",  "all",  .false.,  "none",  2
 #IVAI: dynamical tendencies
-"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
-"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
+#"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
+#"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
 #IVAI
 ###
 # aerosol diagnostics
@@ -458,17 +458,17 @@
 ###
 # canopy diagnostics
 ###
-"gfs_phys",  "claie",         "claie",       "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "cfch",          "cfch",        "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "cfrt",          "cfrt",        "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "cclu",          "cclu",        "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "cpopu",         "cpopu",       "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "claie",         "claie",       "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfch",          "cfch",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfrt",          "cfrt",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cclu",          "cclu",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cpopu",         "cpopu",       "fv3_history2d",         "all",  .false.,  "none",  2
 ###
 # photolysis diagnostics
 ###
-"gfs_phys",  "coszens",       "coszens",     "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "jo3o1d",        "jo3o1d",      "fv3_history2d",         "all",  .false.,  "none",  2
-"gfs_phys",  "jno2",          "jno2",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "coszens",       "coszens",     "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jo3o1d",        "jo3o1d",      "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jno2",          "jno2",        "fv3_history2d",         "all",  .false.,  "none",  2
 #=============================================================================================
 #
 #====> This file can be used with diag_manager/v2.0a (or higher) <====

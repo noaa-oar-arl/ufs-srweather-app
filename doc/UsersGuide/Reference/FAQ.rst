@@ -86,7 +86,7 @@ The SDF is set in the ``workflow:`` section of the ``config.yaml`` file using th
 .. code-block:: console
    
    FV3_GFS_v16
-   FV3_RRFS_v1beta
+   RRFS_sas
    FV3_HRRR
    FV3_WoFS_v0
    FV3_RAP
@@ -128,21 +128,23 @@ How can I configure the computational parameters to use more compute power?
 
 In general, there are two options for using more compute power: (1) increase the number of PEs or (2) enable more threads.
 
-**Increase Number of PEs**
+Increase Number of PEs
 
-PEs are processing elements, which correspond to the number of :term:`MPI` processes/tasks. In the SRW App, ``PE_MEMBER01`` is the number of MPI processes required by the forecast. It is calculated by: :math:`LAYOUT\_X * LAYOUT\_Y + WRTCMP\_write\_groups * WRTCMP\_write\_tasks\_per\_group` when ``QUILTING`` is true. Since these variables are connected, it is recommended that users consider how many processors they want to use to run the forecast model and work backwards to determine the other values.
+PEs are processing elements, which correspond to the number of :numref:`MPI %s <glossary>`  processes/tasks. In the SRW App, PE_MEMBER01 is the number of MPI processes required by the forecast. It is calculated by:
 
-For simplicity, it is often best to set ``WRTCMP_write_groups`` to 1. It may be necessary to increase this number in cases where a single write group cannot finish writing its output before the model is ready to write again. This occurs when the model produces output at very short time intervals.
+OMP_NUM_THREADS_RUN_FCST * (LAYOUT_X * LAYOUT_Y + WRTCMP_write_groups * WRTCMP_write_tasks_per_group) + FIRE_NUM_TASKS when QUILTING is true. Since these variables are connected, it is recommended that users consider how many processors they want to use to run the forecast model and work backwards to determine the other values.
 
-The ``WRTCMP_write_tasks_per_group`` value will depend on domain (i.e., grid) size. This means that a larger domain would require a higher value, while a smaller domain would likely require less than 5 tasks per group.
+For simplicity, it is often best to set WRTCMP_write_groups to 1. It may be necessary to increase this number in cases where a single write group cannot finish writing its output before the model is ready to write again. This occurs when the model produces output at very short time intervals.
 
-The ``LAYOUT_X`` and ``LAYOUT_Y`` variables are the number of MPI tasks to use in the horizontal x and y directions of the regional grid when running the forecast model. Note that the ``LAYOUT_X`` and ``LAYOUT_Y`` variables only affect the number of MPI tasks used to compute the forecast, not resolution of the grid. The larger these values are, the more work is involved when generating a forecast. That work can be spread out over more MPI processes to increase the speed, but this requires more computational resources. There is a limit where adding more MPI processes will no longer increase the speed at which the forecast completes, but the UFS scales well into the thousands of MPI processes.
+The WRTCMP_write_tasks_per_group value will depend on domain (i.e., grid) size. This means that a larger domain would require a higher value, while a smaller domain would likely require less than 5 tasks per group.
 
-Users can take a look at the `SRW App predefined grids <https://github.com/ufs-community/ufs-srweather-app/blob/develop/ush/predef_grid_params.yaml>`__ to get a better sense of what values to use for different types of grids. The :ref:`Computational Parameters <CompParams>` and :ref:`Write Component Parameters <WriteComp>` sections of the SRW App User's Guide define these variables.
+The OMP_NUM_THREADS_RUN_FCST is the number of OpenMP threads to use for parallel regions, LAYOUT_X and LAYOUT_Y variables are the number of MPI tasks to use in the horizontal x and y directions of the regional grid when running the forecast model, and FIRE_NUM_TASKS is the number of MPI tasks assigned to the FIRE_BEHAVIOR component. Note that the LAYOUT_X and LAYOUT_Y variables only affect the number of MPI tasks used to compute the forecast, not resolution of the grid. The larger these values are, the more work is involved when generating a forecast. That work can be spread out over more MPI processes to increase the speed, but this requires more computational resources. There is a limit where adding more MPI processes will no longer increase the speed at which the forecast completes, but the UFS scales well into the thousands of MPI processes.
 
-**Enable More Threads**
+Users can take a look at the :numref:`Section %s <ConfigTasks>` SRW App predefined grids to get a better sense of what values to use for different types of grids. The Computational Parameters and Write Component Parameters sections of the SRW App User’s Guide define these variables.
 
-In general, enabling more threads offers less increase in performance than doubling the number of PEs. However, it uses less memory and still improves performance. To enable more threading, set ``OMP_NUM_THREADS_RUN_FCST`` to a higher number (e.g., 2 or 4). When increasing the value, it must be a factor of the number of cores/CPUs (``number of MPI tasks * OMP threads`` cannot exceed the number of cores per node). Typically, it is best not to raise this value higher than 4 or 5 because there is a limit to the improvement possible via OpenMP parallelization (compared to MPI parallelization, which is significantly more efficient).
+Enable More Threads
+
+In general, enabling more threads offers less increase in performance than doubling the number of PEs. However, it uses less memory and still improves performance. To enable more threading, set OMP_NUM_THREADS_RUN_FCST to a higher number (e.g., 2 or 4). When increasing the value, it must be a factor of the number of cores/CPUs (number of MPI tasks * OMP threads cannot exceed the number of cores per node). Typically, it is best not to raise this value higher than 4 or 5 because there is a limit to the improvement possible via OpenMP parallelization (compared to MPI parallelization, which is significantly more efficient).
 
 .. _CycleInd:
 
@@ -182,27 +184,28 @@ All three sets of files *may* be placed in the same directory location (and woul
 How can I change the default parameters (e.g., walltime) for workflow tasks?
 =============================================================================
 
-You can change default parameters for a workflow task by setting them to a new value in the ``rocoto: tasks:`` section of the ``config.yaml`` file. First, be sure that the task you want to change is part of the :ref:`default workflow <WorkflowTasksTable>` or included under ``taskgroups:`` in the ``rocoto: tasks:`` section of ``config.yaml``. For instructions on how to add a task to the workflow, see :ref:`this FAQ <SetTasks>`. 
+You can change default parameters for a workflow task by setting them to a new value in the rocoto: tasks: section of the config.yaml file. First, be sure that the task you want to change is part of the default workflow or included under taskgroups: in the rocoto: tasks: section of config.yaml. For instructions on how to add a task to the workflow, see this FAQ.
 
-Once you verify that the task you want to modify is included in your workflow, you can configure the task by adding it to the ``rocoto: tasks:`` section of ``config.yaml``. Users should refer to the YAML file where the task is defined to see how to structure the modifications (these YAML files reside in ``ufs-srweather-app/parm/wflow``). For example, to change the wall clock time from 15 to 20 minutes for the ``run_post_mem###_f###`` tasks, users would look at ``post.yaml``, where the post-processing tasks are defined. Formatting for tasks and metatasks should match the structure in this YAML file exactly. 
+Once you verify that the task you want to modify is included in your workflow, you can configure the task by adding it to the rocoto: tasks: section of config.yaml. Users should refer to the YAML file where the task is defined to see how to structure the modifications (these YAML files reside in ufs-srweather-app/parm/wflow). For example, to change the wall clock time from 15 to 20 minutes for the run_post_mem###_f### tasks, users would look at post.yaml, where the post-processing tasks are defined. Formatting for tasks and metatasks should match the structure in this YAML file exactly. 
 
 .. figure:: https://raw.githubusercontent.com/wiki/ufs-community/ufs-srweather-app/OtherImages/FAQpostyaml.png
    :alt: Excerpt of post.yaml file 
 
    *Excerpt of post.yaml*
 
-Since the ``run_post_mem###_f###`` task in ``post.yaml`` comes under ``metatask_run_ens_post`` and ``metatask_run_post_mem#mem#_all_fhrs``, all of these tasks and metatasks must be included under ``rocoto: tasks:`` before defining the ``walltime`` variable. Therefore, to change the ``walltime`` from 15 to 20 minutes, the ``rocoto: tasks:`` section should look like this:
+Since the run_post_mem###_f### task in post.yaml comes under metatask_run_ens_post and metatask_run_post_mem#mem#_all_fhrs, all of these tasks and metatasks must be included under rocoto: tasks: before defining the walltime variable. Therefore, to change the walltime from 15 to 20 minutes, the rocoto: tasks: section should look like this:
+
 
 .. code-block:: yaml
-   
-   rocoto:
-     tasks:
-       metatask_run_ens_post:
-         metatask_run_post_mem#mem#_all_fhrs:
-           task_run_post_mem#mem#_f#fhr#:
-             walltime: 00:20:00
 
-Notice that this section contains all three of the tasks/metatasks highlighted in yellow above and lists the ``walltime`` where the details of the task begin. While users may simply adjust the ``walltime`` variable in ``post.yaml``, learning to make these changes in ``config.yaml`` allows for greater flexibility in experiment configuration. Users can modify a single file (``config.yaml``), rather than (potentially) several workflow YAML files, and can account for differences between experiments instead of hard-coding a single value. 
+   task_run_post:
+     upp:
+       execution:
+         batchargs:
+           walltime: 00:20:00
+
+
+Notice that this section contains all three of the tasks/metatasks highlighted in yellow above and lists the walltime where the details of the task begin. While users may simply adjust the walltime variable in post.yaml, learning to make these changes in config.yaml allows for greater flexibility in experiment configuration. Users can modify a single file (config.yaml), rather than (potentially) several workflow YAML files, and can account for differences between experiments instead of hard-coding a single value.
 
 See `SRW Discussion #990 <https://github.com/ufs-community/ufs-srweather-app/discussions/990>`__ for the question that inspired this FAQ. 
 
@@ -216,13 +219,13 @@ The predefined grids included with the SRW App are configured to run with 65 lev
 After modifying one of the SRW App executables, how can I rebuild the executable?
 ==================================================================================
 
-When users make changes to one of the SRW App executables, they can rerun the ``devbuild.sh`` script using the command ``./devbuild.sh --platform=<machine_name>``. This will eventually bring up three options: ``[R]emove, [C]ontinue, or [Q]uit``.
+When users make changes to one of the SRW App executables, they can rerun the devbuild.sh script using the command ./devbuild.sh --platform=<machine_name>. This will eventually bring up three options: [R]emove, [C]ontinue, or [Q]uit.
 
-The Continue option will recompile the modified routines and rebuild only the affected executables. The Remove option provides a clean build; it completely removes the existing build directory and rebuilds all executables from scratch instead of reusing the existing build where possible. The build log files for the CMake and Make step will appear in ``ufs-srweather-app/build/log.cmake`` and ``ufs-srweather-app/build/log.make``; any errors encountered should be detailed in those files.
+The Continue option will recompile the modified routines and rebuild only the affected executables. The Remove option provides a clean build; it completely removes the existing build directory and rebuilds all executables from scratch instead of reusing the existing build where possible. The build log files for the CMake and Make step will appear in ufs-srweather-app/build/log.cmake and ufs-srweather-app/build/log.make; any errors encountered should be detailed in those files.
 
-Users should note that the Continue option may not work as expected for changes to CCPP because the ``ccpp_prebuild.py`` script will not be rerun. It is typically best to recompile the model entirely in this case by selecting the Remove option for a clean build.
+Users should note that the Continue option may not work as expected for changes to CCPP because the ccpp_prebuild.py script will not be rerun. It is typically best to recompile the model entirely in this case by selecting the Remove option for a clean build.
 
-A convenience script, ``devclean.sh``, is also available. This script can be used to remove build artifacts in cases where something goes wrong with the build or where changes have been made to the source code and the executables need to be rebuilt. Users can run this script by entering ``./devclean.sh -a``. Following this step, they can rerun the ``devbuild.sh`` script to rebuild the SRW App. Running ``./devclean.sh -h`` will list additional options available. 
+A convenience script, devclean.sh, is also available. This script can be used to remove build artifacts in cases where something goes wrong with the build or where changes have been made to the source code and the executables need to be rebuilt. Users can run this script by entering ./devclean.sh -a. Following this step, they can rerun the devbuild.sh script to rebuild the SRW App. Running ./devclean.sh -h will list additional options available. 
 
 See `SRW Discussion #1007 <https://github.com/ufs-community/ufs-srweather-app/discussions/1007>`__ for the question that inspired this FAQ.
 
@@ -339,3 +342,37 @@ If you encounter issues while generating ICS and LBCS for a predefined 3-km grid
 Additionally, users can try increasing the number of processors or the wallclock time requested for the jobs. Sometimes jobs may fail without errors because the process is cut short. These settings can be adusted in one of the ``ufs-srweather-app/parm/wflow`` files. For ICs/LBCs tasks, these parameters are set in the ``coldstart.yaml`` file. 
 
 Users can also update the hash of UFS_UTILS in the ``Externals.cfg`` file to the HEAD of that repository. There was a known memory issue with how ``chgres_cube`` was handling regridding of the 3-D wind field for large domains at high resolutions (see `UFS_UTILS PR #766 <https://github.com/ufs-community/UFS_UTILS/pull/766>`__ and the associated issue for more information). If changing the hash in ``Externals.cfg``, users will need to rerun ``manage_externals`` and rebuild the code (see :numref:`Section %s <BuildSRW>`). 
+
+.. _Enable-REFC-plots:
+
+How to enable composite reflectivity plots in SRW App release v3.0.0?
+=======================================================================
+
+In order for model layer reflectivity to be calculated, the ``lradar`` FV3 input variable needs to be set to ``True``.  For the CCPP physics suites, ``FV3_GFS_v15p2`` and ``FV3_GFS_v16``, the ``lradar`` variable is set to ``false`` by default.  In the SRW App, this variable is being set to ``null`` for these two physics suites, which causes the CCPP default to be used.  Thus, model layer reflectivity is not being calculated and the composite reflectivity will not be plotted. Users can override this by setting ``lradar`` to ``true`` in the ``parm/FV3.input.yml`` file in the SRW App which generates radar-style composite reflectivity plots from the maximum reflectivity at each model layer.
+
+Update line 508 of ``ufs-srweather-app/parm/FV3.input.yaml`` to:
+
+.. code-block:: console
+   
+   lradar: True
+
+.. _Custom-Grid:
+
+How to use a custom sub-CONUS grid (for example, a 15km grid in place of the 25km grid) if the run crashes at make_ics and make_lbcs steps in SRW App release v3.0.0?
+======================================================================================================================================================================
+
+Users should try reducing the number of MPI tasks allocated to the ``make_ics`` and ``make_lbcs`` tasks. Add the following section to the model configuration file, ``config.yaml``:
+
+.. code-block:: console
+
+   rocoto:
+     tasks:
+       metatask_run_ensemble:
+         task_make_ics_mem#mem#:
+           nnodes: 1
+           ppn: 12
+         task_make_lbcs_mem#mem#:
+           nnodes: 1
+           ppn: 12
+
+If the issue persists, try increasing the grid size by a bit and reducing the tasks per node, ``ppn``, further.

@@ -55,22 +55,18 @@ The SRW App requires input files to run. These include static datasets, initial 
      - File location
    * - Derecho
      - /glade/work/epicufsrt/contrib/UFS_SRW_data/|data|/input_model_data
-   * - Gaea-C5
-     - /gpfs/f5/epic/world-shared/UFS_SRW_data/|data|/input_model_data/
    * - Gaea-C6
      - /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/|data|/input_model_data/
    * - Hera
-     - /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/|data|/input_model_data/
+     - /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/|data|/input_model_data
    * - Hercules
-     - /work/noaa/epic/role-epic/contrib/UFS_SRW_data/|data|/input_model_data/
-   * - Jet
-     - /mnt/lfs5/HFIP/hfv3gfs/role.epic/UFS_SRW_data/|data|/input_model_data/
+     - /work/noaa/epic/role-epic/contrib/UFS_SRW_data/|data|/input_model_data//
    * - NOAA Cloud
      - /contrib/EPIC/UFS_SRW_data/|data|/input_model_data/
    * - Orion
      - /work/noaa/epic/role-epic/contrib/UFS_SRW_data/|data|/input_model_data/
-   * - WCOSS2
-     - /lfs/h2/emc/lam/noscrub/UFS_SRW_App/develop/input_model_data/
+   * - Ursa
+     - /scratch3/NCEPDEV/nems/role.epic/ursa/UFS_SRW_data/|data|/input_model_data
 
 For Level 2-4 systems, the data must be added to the user's system. Detailed instructions on how to add the data can be found in :numref:`Section %s: Downloading and Staging Input Data <DownloadingStagingInput>`. Sections :numref:`%s: Input Files <Input>` and :numref:`%s: Output Files <OutputFiles>` contain useful background information on the input and output files used in the SRW App.
 
@@ -79,7 +75,7 @@ For Level 2-4 systems, the data must be added to the user's system. Detailed ins
 Grid Configuration
 =======================
 
-The SRW App officially supports the five predefined grids shown in :numref:`Table %s <PredefinedGrids>`. The out-of-the-box SRW App case uses the ``RRFS_CONUS_25km`` predefined grid option. More information on the predefined and user-generated grid options can be found in :numref:`Section %s: Limited Area Model (LAM) Grids <LAMGrids>`. Users who plan to utilize one of the five predefined domain (grid) options may continue to the next step (:numref:`Step %s: Generate the Forecast Experiment <GenerateForecast>`). Users who plan to create a new custom predefined grid should refer to the instructions in :numref:`Section %s: Creating User-Generated Grids <UserDefinedGrid>`. At a minimum, these users will need to add the new grid name to the ``valid_param_vals.yaml`` file and add the corresponding grid-specific parameters in the ``predef_grid_params.yaml`` file.
+The SRW App officially supports the five predefined grids shown in :numref:`Table %s <PredefinedGrids>`. The out-of-the-box SRW App case uses the ``RRFS_CONUS_25km`` predefined grid option. More information on the predefined and user-generated grid options can be found in :numref:`Section %s: Limited Area Model (LAM) Grids <LAMGrids>`. Users who plan to utilize one of the five predefined domain (grid) options may continue to the next step (:numref:`Step %s: Generate the Forecast Experiment <GenerateForecast>`). Users who plan to create a new custom predefined grid should refer to the instructions in :numref:`Section %s: Creating User-Generated Grids <UserDefinedGrid>`. At a minimum, these users will need to add the new grid name to the ``experiment.jsonschema`` file and add the corresponding grid-specific parameters in the ``predef_grid_params.yaml`` file.
 
 .. _PredefinedGrids:
 
@@ -173,7 +169,7 @@ Each experiment requires certain basic information to run (e.g., date, grid, phy
 Default configuration: ``config_defaults.yaml``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In general, ``config_defaults.yaml`` is split into sections by category (e.g., ``user:``, ``platform:``, ``workflow:``, ``task_make_grid:``). Users can view a full list of categories and configuration parameters in the :doc:`Table of Variables in config_defaults.yaml <DefaultVarsTable>`. Definitions and default values of each of the variables can be found in :numref:`Section %s: Workflow Parameters <ConfigWorkflow>` and in the ``config_defaults.yaml`` file comments. Some of these default values are intentionally invalid in order to ensure that the user assigns valid values in their ``config.yaml`` file. There is usually no need for a user to modify ``config_defaults.yaml`` because any settings provided in ``config.yaml`` will override the settings in ``config_defaults.yaml``.
+In general, ``config_defaults.yaml`` is split into sections by category (e.g., ``user:``, ``platform:``, ``workflow:``, ``task_make_grid:``). Each of the sections may have subsections describing run-time resource requirements in an ``execution:`` block with a structure described by the ``uwtools`` YAML documentation `here <https://uwtools.readthedocs.io/en/main/sections/user_guide/yaml/components/execution.html>`__ and variables that are used as bash environment variables in the run scripts will appear under the ``envvars:`` block. Users can view a full list of categories and configuration parameters in the :doc:`Table of Variables in config_defaults.yaml <DefaultVarsTable>`. Definitions and default values of each of the variables can be found in :numref:`Section %s: Workflow Parameters <ConfigWorkflow>` and in the ``config_defaults.yaml`` file comments. Some of these default values are intentionally invalid in order to ensure that the user assigns valid values in their ``config.yaml`` file. There is usually no need for a user to modify ``config_defaults.yaml`` because any settings provided in ``config.yaml`` will override the settings in ``config_defaults.yaml``.
 
 .. _UserSpecificConfig:
 
@@ -316,10 +312,6 @@ On platforms where Rocoto and :term:`cron` are available, users can automate res
 
 When running with GNU compilers (i.e., if the modulefile used to set up the build environment in :numref:`Section %s <BuildExecutables>` uses a GNU compiler), users must also set ``COMPILER: "gnu"`` in the ``workflow:`` section of the ``config.yaml`` file.
 
-.. note::
-
-   On ``JET``, users should add ``PARTITION_DEFAULT: xjet`` and ``PARTITION_FCST: xjet`` to the ``platform:`` section of the ``config.yaml`` file.
-
 For example, to run the out-of-the-box experiment on Hercules using cron to automate job submission, users can ``ssh`` to the hercules-login-1 node and add or modify variables in the ``user``, ``workflow``, ``task_get_extrn_ics``, and ``task_get_extrn_lbcs`` sections of ``config.yaml`` according to the following example (unmodified variables are not shown here): 
 
    .. code-block::
@@ -340,7 +332,7 @@ For example, to run the out-of-the-box experiment on Hercules using cron to auto
 
 .. hint::
 
-   * Valid values for configuration variables should be consistent with those in the ``ush/valid_param_vals.yaml`` script. 
+   * Valid values for configuration variables should be consistent with those in the ``ush/experiment.jsonschema`` script. 
 
    * Various sample configuration files can be found within the subdirectories of ``tests/WE2E/test_configs``.
 
@@ -418,125 +410,7 @@ Users can omit specific tasks from a task group by including them under the list
        task_post_stat_o3:
        task_post_stat_pm25:
        task_bias_correction_o3:
-       task_bias_correction_pm25:
-
-**Next Steps:**
-
-   * To configure an experiment for a general Linux or Mac system, see the :ref:`next section <LinuxMacExptConfig>` for additional required steps. 
-   * To add the graphics plotting tasks to the experiment workflow, go to section :numref:`Section %s: Plotting Configuration <PlotOutput>`. 
-   * To configure an experiment to run METplus verification tasks, see :numref:`Section %s <VXConfig>`. 
-   * Otherwise, skip to :numref:`Section %s <GenerateWorkflow>` to generate the workflow.
-
-.. _LinuxMacExptConfig:
-
-Configuring an Experiment on General Linux and MacOS Systems
-``````````````````````````````````````````````````````````````
-
-.. note::
-    Examples in this subsection presume that the user is running in the Terminal with a bash shell environment. If this is not the case, users will need to adjust the commands to fit their command line application and shell environment. 
-
-**Optional: Install Rocoto**
-
-.. note::
-   Users may `install Rocoto <https://github.com/christopherwharrop/rocoto/blob/develop/INSTALL>`__ if they want to make use of a workflow manager to run their experiments. However, this option has not yet been tested on MacOS and has had limited testing on general Linux plaforms.
-
-
-**Configure the SRW App:**
-
-After following the steps in :numref:`Section %s: General Configuration <GeneralConfig>` above, users should have a ``config.yaml`` file with settings from ``community.config.yaml`` and updates similar to this: 
-
-.. code-block:: console
-
-   user:
-      MACHINE: macos
-      ACCOUNT: user 
-   workflow:
-      EXPT_SUBDIR: my_test_expt
-      COMPILER: gnu
-   task_get_extrn_ics:
-      USE_USER_STAGED_EXTRN_FILES: true
-      EXTRN_MDL_SOURCE_BASEDIR_ICS: /path/to/input_model_data/FV3GFS/grib2/2019061518
-   task_get_extrn_lbcs:
-      USE_USER_STAGED_EXTRN_FILES: true
-      EXTRN_MDL_SOURCE_BASEDIR_LBCS: /path/to/input_model_data/FV3GFS/grib2/2019061518
-
-Due to the limited number of processors on MacOS systems, users must also configure the domain decomposition parameters directly in the section of the ``predef_grid_params.yaml`` file pertaining to the grid they want to use. Domain decomposition needs to take into account the number of available CPUs and configure the variables ``LAYOUT_X``, ``LAYOUT_Y``, and ``WRTCMP_write_tasks_per_group`` accordingly. 
-
-The example below is for systems with 8 CPUs:
-
-.. code-block:: console
-
-   task_run_fcst:
-      LAYOUT_X: 3
-      LAYOUT_Y: 2
-      WRTCMP_write_tasks_per_group: 2
-
-.. note::
-   The number of MPI processes required by the forecast will be equal to ``LAYOUT_X`` * ``LAYOUT_Y`` + ``WRTCMP_write_tasks_per_group``. 
-
-For a machine with 4 CPUs, the following domain decomposition could be used:
-
-.. code-block:: console
-
-   task_run_fcst:
-      LAYOUT_X: 3
-      LAYOUT_Y: 1
-      WRTCMP_write_tasks_per_group: 1
-
-**Configure the Machine File**
-
-Configure the ``macos.yaml`` or ``linux.yaml`` machine file in ``ufs-srweather-app/ush/machine`` based on the number of CPUs (``NCORES_PER_NODE``) in the system (usually 8 or 4 in MacOS; varies on Linux systems). Job scheduler (``SCHED``) options can be viewed :ref:`here <sched>`. Users must also set the path to the fix file directories. 
-
-.. code-block:: console
-
-   platform:
-      # Architecture information
-      WORKFLOW_MANAGER: none
-      NCORES_PER_NODE: 8
-      SCHED: none
-      # Run commands for executables
-      RUN_CMD_FCST: 'mpirun -np ${PE_MEMBER01}'
-      RUN_CMD_POST: 'mpirun -np 4'
-      RUN_CMD_SERIAL: time
-      RUN_CMD_UTILS: 'mpirun -np 4'
-      # Commands to run at the start of each workflow task.
-      PRE_TASK_CMDS: '{ ulimit -a; }'
-      FIXaer: /path/to/FIXaer/files
-      FIXgsm: /path/to/FIXgsm/files
-      FIXlut: /path/to/FIXlut/files
-
-      # Path to location of static input files used by the make_orog task
-      FIXorg: path/to/FIXorg/files 
-
-      # Path to location of static surface climatology input fields used by sfc_climo_gen
-      FIXsfc: path/to/FIXsfc/files 
-
-      #Path to location of NaturalEarth shapefiles used for plotting
-      FIXshp: /Users/username/DATA/UFS/NaturalEarth
-
-   task_run_fcst:
-      FIXaer: /path/to/FIXaer/files
-      FIXgsm: /path/to/FIXgsm/files
-      FIXlut: /path/to/FIXlut/files
-
-   data:
-      # Used by setup.py to set the values of EXTRN_MDL_SOURCE_BASEDIR_ICS and EXTRN_MDL_SOURCE_BASEDIR_LBCS
-      FV3GFS: /Users/username/DATA/UFS/FV3GFS 
-
-The ``data:`` section of the machine file can point to various data sources that the user has pre-staged on disk. For example:
-
-.. code-block:: console
-
-   data:
-      FV3GFS:
-         nemsio: /Users/username/DATA/UFS/FV3GFS/nemsio
-         grib2: /Users/username/DATA/UFS/FV3GFS/grib2
-         netcdf: /Users/username/DATA/UFS/FV3GFS/netcdf
-      RAP: /Users/username/DATA/UFS/RAP/grib2
-      HRRR: /Users/username/DATA/UFS/HRRR/grib2
-      RRFS: /Users/username/DATA/UFS/RRFS/grib2
-
-This can be helpful when conducting multiple experiments with different types of data. 
+       task_bias_correction_pm25: 
 
 **Next Steps:**
 
@@ -570,7 +444,7 @@ the same cycle starting date/time and forecast hours. Other parameters may diffe
 Cartopy Shapefiles
 `````````````````````
 
-The Python plotting tasks require a path to the directory where the Cartopy Natural Earth shapefiles are located. The medium scale (1:50m) cultural and physical shapefiles are used to create coastlines and other geopolitical borders on the map. On :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` systems, this path is already set in the system's machine file using the variable ``FIXshp``. Users on other systems will need to download the shapefiles and update the path of ``$FIXshp`` in the machine file they are using (e.g., ``$SRW/ush/machine/macos.yaml`` for a generic MacOS system, where ``$SRW`` is the path to the ``ufs-srweather-app`` directory). The subset of shapefiles required for the plotting task can be obtained from the `SRW Data Bucket <https://noaa-ufs-srw-pds.s3.amazonaws.com/develop-20240618/NaturalEarth/NaturalEarth.tgz>`__. The full set of medium-scale (1:50m) Cartopy shapefiles can be downloaded `here <https://www.naturalearthdata.com/downloads/>`__. 
+The Python plotting tasks require a path to the directory where the Cartopy Natural Earth shapefiles are located. The medium scale (1:50m) cultural and physical shapefiles are used to create coastlines and other geopolitical borders on the map. On :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` systems, this path is already set in the system's machine file using the variable ``FIXshp``. Users on other systems will need to download the shapefiles and update the path of ``$FIXshp`` in the machine file they are using (e.g., ``$SRW/ush/machine/macos.yaml`` for a generic MacOS system, where ``$SRW`` is the path to the ``ufs-srweather-app`` directory). The subset of shapefiles required for the plotting task can be obtained from the `SRW Data Bucket <https://noaa-ufs-srw-pds.s3.amazonaws.com/develop-20240618/NaturalEarth.tar.gz>`__. The full set of medium-scale (1:50m) Cartopy shapefiles can be downloaded `here <https://www.naturalearthdata.com/downloads/>`__.
 
 Task Configuration
 `````````````````````
@@ -999,12 +873,11 @@ The last line of output from this script, starting with ``*/1 * * * *`` or ``*/3
 
 This workflow generation script creates an experiment directory and populates it with all the data needed to run through the workflow. The flowchart in :numref:`Figure %s <WorkflowGeneration>` describes the experiment generation process. The ``generate_FV3LAM_wflow.py`` script: 
 
-   #. Runs the ``setup.py`` script to set the configuration parameters. This script reads four other configuration scripts in order:
+   #. Runs the ``setup.py`` script to set the configuration parameters. This script reads several other configuration scripts in order:
       
       a. ``config_defaults.yaml`` (:numref:`Section %s <DefaultConfigSection>`)
       b. ``${machine}.yaml`` (the machine configuration file)
       c. ``config.yaml`` (:numref:`Section %s <UserSpecificConfig>`) 
-      d. ``valid_param_vals.yaml``
 
    #. Symlinks the time-independent (fix) files and other necessary data input files from their location to the experiment directory (``$EXPTDIR``). 
    #. Creates the input namelist file ``input.nml`` based on the ``input.nml.FV3`` file in the ``parm`` directory. 
@@ -1015,7 +888,7 @@ The generated workflow will appear in ``$EXPTDIR``, where ``EXPTDIR=${EXPT_BASED
 .. _WorkflowGeneration:
 
 .. figure:: https://github.com/ufs-community/ufs-srweather-app/wiki/WorkflowImages/SRW_regional_workflow_gen.png
-   :alt: Flowchart of the workflow generation process. Scripts are called in the following order: source_util_funcs.sh (which calls bash_utils), then set_FV3nml_sfc_climo_filenames.py, set_FV3nml_ens_stoch_seeds.py, create_diag_table_file.py, and setup.py. setup.py reads several yaml configuration files (config_defaults.yaml, config.yaml, {machine_config}.yaml, valid_param_vals.yaml, and others) and calls several scripts: set_cycle_dates.py, set_grid_params_GFDLgrid.py, set_grid_params_ESGgrid.py, link_fix.py, and set_ozone_param.py. Then, it sets a number of variables, including FIXgsm, fixorg, and FIXsfc variables. Next, set_predef_grid_params.py is called, and the FIXam and FIXLAM directories are set, along with the forecast input files. The setup script also calls set_extrn_mdl_params.py, sets the GRID_GEN_METHOD with HALO, checks various parameters, and generates shell scripts. Then, the workflow generation script produces a YAML configuration file and generates the actual Rocoto workflow XML file from the template file (by calling workflow-tools set_template). The workflow generation script checks the crontab file and, if applicable, copies certain fix files to the experiment directory. Then, it copies templates of various input files to the experiment directory and sets parameters for the input.nml file. Finally, it generates the workflow. Additional information on each step appears in comments within each script.
+   :alt: Flowchart of the workflow generation process. Scripts are called in the following order: source_util_funcs.sh (which calls bash_utils), then set_fv3nml_sfc_climo_filenames.py, set_fv3nml_ens_stoch_seeds.py, create_diag_table_file.py, and setup.py. setup.py reads several yaml configuration files (config_defaults.yaml, config.yaml, {machine_config}.yaml, and others) and calls several scripts: set_cycle_dates.py, set_grid_params_GFDLgrid.py, set_grid_params_ESGgrid.py, link_fix.py, and set_ozone_param.py. Then, it sets a number of variables, including FIXgsm, fixorg, and FIXsfc variables. Next, set_predef_grid_params.py is called, and the FIXam and FIXLAM directories are set, along with the forecast input files. The setup script also calls set_extrn_mdl_params.py, sets the GRID_GEN_METHOD with HALO, checks various parameters, and generates shell scripts. Then, the workflow generation script produces a YAML configuration file and generates the actual Rocoto workflow XML file by calling the uwtools rocoto realize tool. The workflow generation script checks the crontab file and, if applicable, copies certain fix files to the experiment directory. Then, it copies templates of various input files to the experiment directory and sets parameters for the input.nml file. Finally, it generates the workflow. Additional information on each step appears in comments within each script.
 
    *Experiment Generation Description*
 
@@ -1088,14 +961,7 @@ In addition to the baseline tasks described in :numref:`Table %s <WorkflowTasksT
    * - plot_allvars
      - Run the plotting task and, optionally, the difference plotting task
 
-The METplus verification tasks and metatasks that are included by default in ``verify_*.yaml`` are described
-in :numref:`Table %s <VXWorkflowTasksTable>`. The ``taskgroup`` entry after the name of each (meta)task indicates
-the taskgroup file that must be included in the user's ``config.yaml`` file under ``rocoto: tasks: taskgroups:``
-in order for that (meta)task to be considered for inclusion in the workflow (see :numref:`Section %s <DefineWorkflow>`
-for details). As described in  :numref:`Section %s <defining_metatasks>`, metatasks define a set of tasks in the
-workflow based on multiple values of one or more parameters such as the ensemble member index, the accumulation
-interval (for cumulative fields such as accumulated precipitation), and the name of the verification field group
-(see description of ``VX_FIELD_GROUPS`` in :numref:`Section %s <GeneralVXParams>`).
+The METplus verification tasks and metatasks that are included by default in ``verify_*.yaml`` are described in :numref:`Table %s <VXWorkflowTasksTable>`. The ``taskgroup`` entry after the name of each (meta)task indicates the taskgroup file that must be included in the user's ``config.yaml`` file under ``rocoto: tasks: taskgroups:`` in order for that (meta)task to be considered for inclusion in the workflow (see :numref:`Section %s <DefineWorkflow>` for details). Metatasks define a set of tasks in the workflow based on multiple values of one or more parameters such as the ensemble member index, the accumulation interval (for cumulative fields such as accumulated precipitation), and the name of the verification field group (see description of ``VX_FIELD_GROUPS`` in :numref:`Section %s <GeneralVXParams>`).
 
 .. _VXWorkflowTasksTable:
 

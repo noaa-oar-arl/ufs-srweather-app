@@ -39,9 +39,9 @@ platform:
   FIXorg: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/SRW-AQM-v8/fix/fix_aqm
   FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_emis
-  #FIXemis: /gpfs/f6/bil-fire3/world-shared/Emissions/nexus
+  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+
   FIXsmoke: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_crtm
@@ -59,6 +59,11 @@ data:
     RAP: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/RAP/${yyyymmdd}${hh}
     GSMGFS: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/GSMGFS/${yyyymmdd}${hh}
 
+cpl_aqm_parm:
+  COMINfire_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/RAVE_fire
+  COMINgefs_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/GEFS_DATA
+  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/GFS_SFC_DATA
+
 smoke_dust_parm:
   COMINsmoke_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
   COMINrave_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
@@ -67,9 +72,8 @@ rocoto:
   tasks:
     metatask_run_ensemble:
       task_run_fcst_mem#mem#:
-        cores:
-        native: '--cpus-per-task {{ task_run_fcst.OMP_NUM_THREADS_RUN_FCST|int }} --exclusive {{ platform.SCHED_NATIVE_CMD }}'
-        nodes: '{{ task_run_fcst.NNODES_RUN_FCST // 1 }}:ppn={{ task_run_fcst.PPN_RUN_FCST // 1 }}'
-        nnodes:
-        nodesize:
-        ppn:
+        native: '--cpus-per-task {{ task_run_fcst.fv3.execution.threads // 1 }} --exclusive {{ platform.SCHED_NATIVE_CMD }}'
+
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/UFS_FIRE/2020081318
