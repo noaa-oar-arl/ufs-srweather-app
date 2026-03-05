@@ -3,7 +3,7 @@ metadata:
 user:
   RUN_ENVIR: community
   MACHINE: GAEAC6
-  ACCOUNT: bil-fire3
+  ACCOUNT: arl
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -63,7 +63,7 @@ task_run_fcst:
   fv3:
     execution:
       batchargs:
-        walltime: 01:20:00
+        walltime: 02:20:00
   envvars:
     DT_ATMOS: 180
     OMP_NUM_THREADS_RUN_FCST: 1
