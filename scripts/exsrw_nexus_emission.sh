@@ -420,6 +420,13 @@ if [ "${USE_GFS_SFC}" = "TRUE" ]; then # GFS INPUT
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
+  ${USHsrw}/nexus_utils/python/nexus_gfs_metemis.py -i ${DATA}/GFS_SFC/gfs.t??z.sfcf???.nc -o ${DATA}/GFS_SFC_METEMIS_INPUT.nc
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="Call to python script \"nexus_gfs_metemis.py\" failed."
+    err_exit "${message_txt}"
+    print_err_msg_exit "${message_txt}"
+  fi
 fi
 #
 #----------------------------------------------------------------------
