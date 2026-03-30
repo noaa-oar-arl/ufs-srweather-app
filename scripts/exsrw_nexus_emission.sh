@@ -120,7 +120,8 @@ fi
 #If both NEI2016 and NEI2022 are FALSE, it defaults to NEI2016.
 NEI2016="FALSE"
 NEI2022="FALSE"
-NEI2022_GLOBTEMPO="TRUE"
+NEI2022_GLOBTEMPO="FALSE"
+NEI2022_GLOBTEMPO_METEMIS="TRUE"
 TIMEZONES="TRUE"
 CEDS="TRUE"
 HTAP="TRUE"
@@ -162,6 +163,14 @@ elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then  #Use NEI2022 with updated global
     cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2022_globtempo/*.rc ${DATA}
   else
     cp -p ${PARMsrw}/nexus_config/cmaq_nei2022_globtempo/*.rc ${DATA}
+  fi
+elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then  #Use NEI2022 with updated global and MetEmis
+  if [ "${USE_GFS_SFC}" = "TRUE" ]; then
+    cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2022_globtempo_metemis/*.rc ${DATA}
+  else
+    message_txt="MetEmis needs GFS surface data."
+    err_exit "${message_txt}"
+    print_err_msg_exit "${message_txt}"
   fi
 else #Default to NEI2016 Configs
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
@@ -288,13 +297,8 @@ if [ "${NEI2016}" = "TRUE" ]; then
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
-#
 elif [ "${NEI2022}" = "TRUE" ]; then 
-  mkdir -p ${DATAinput}/NEMO
-  mkdir -p ${DATAinput}/NEMO/NEI2022
-  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10
-  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2025-10"
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis none
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
@@ -309,11 +313,22 @@ elif [ "${NEI2022}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then
-  mkdir -p ${DATAinput}/NEMO
-  mkdir -p ${DATAinput}/NEMO/NEI2022
-  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10
-  mkdir -p ${DATAinput}/NEMO/NEI2022/v2025-10/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2025-10"
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis none
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
+    err_exit "${message_txt}"
+    print_err_msg_exit "${message_txt}"
+  fi
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_control_tilefix.py -f ${DATA}/NEXUS_Config.rc -t ${DATA}/HEMCO_sa_Time.rc # -d ${yyyymmdd}
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="FATAL ERROR Call to python script \"nexus_nei2022_control_tilefix.py\" failed."
+    err_exit "${message_txt}"
+    print_err_msg_exit "${message_txt}"
+  fi
+elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis all
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
@@ -355,7 +370,7 @@ if [ "${MASKS}" = "TRUE" ]; then # MASKS
   ln -sf ${FIXemis}/MASKS ${DATAinput}
 fi
 
-if [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then # CAMS-TEMPO
+if [ "${NEI2022_GLOBTEMPO}" = "TRUE" || "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then # CAMS-TEMPO
   ln -sf ${FIXemis}/CAMS-TEMPO ${DATAinput}
 fi
 
