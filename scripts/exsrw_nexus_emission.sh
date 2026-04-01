@@ -168,9 +168,7 @@ elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then  #Use NEI2022 with update
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
     cp -p ${PARMsrw}/nexus_config/cmaq_gfs_megan_nei2022_globtempo_metemis/*.rc ${DATA}
   else
-    message_txt="MetEmis needs GFS surface data."
-    err_exit "${message_txt}"
-    print_err_msg_exit "${message_txt}"
+    cp -p ${PARMsrw}/nexus_config/cmaq_nei2022_globtempo_metemis/*.rc ${DATA}
   fi
 else #Default to NEI2016 Configs
   if [ "${USE_GFS_SFC}" = "TRUE" ]; then
