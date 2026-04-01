@@ -370,7 +370,7 @@ if [ "${MASKS}" = "TRUE" ]; then # MASKS
   ln -sf ${FIXemis}/MASKS ${DATAinput}
 fi
 
-if [ "${NEI2022_GLOBTEMPO}" = "TRUE" || "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then # CAMS-TEMPO
+if [ "${NEI2022_GLOBTEMPO}" = "TRUE" ] || [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then # CAMS-TEMPO
   ln -sf ${FIXemis}/CAMS-TEMPO ${DATAinput}
 fi
 
