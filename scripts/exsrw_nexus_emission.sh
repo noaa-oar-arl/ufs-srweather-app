@@ -296,7 +296,7 @@ if [ "${NEI2016}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 elif [ "${NEI2022}" = "TRUE" ]; then 
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis none
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --metemis none
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
@@ -311,7 +311,7 @@ elif [ "${NEI2022}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis none
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --metemis none
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
@@ -326,7 +326,7 @@ elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --met-emis all
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --metemis all --metemis-version "v2026-04"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
