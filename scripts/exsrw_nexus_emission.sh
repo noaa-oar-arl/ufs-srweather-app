@@ -137,6 +137,11 @@ Yuan_XLAI="TRUE"
 GEOS="TRUE"
 AnnualScalar="TRUE"
 OFFLINE_SOILNOX="TRUE"
+
+# Set MetEmis sectors for testing
+# Valid options are: "onroad", "livestock", "rwc", "afdust", "all", "none"
+METEMIS_SECTOR="all"
+
 #
 #-----------------------------------------------------------------------
 #
@@ -326,7 +331,7 @@ elif [ "${NEI2022_GLOBTEMPO}" = "TRUE" ]; then
     print_err_msg_exit "${message_txt}"
   fi
 elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then
-  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --metemis all --metemis-version "v2026-04"
+  ${USHsrw}/nexus_utils/python/nexus_nei2022_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2026-03" --metemis ${METEMIS_SECTOR} --metemis-version "v2026-04"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_linker.py\" failed."
@@ -337,6 +342,13 @@ elif [ "${NEI2022_GLOBTEMPO_METEMIS}" = "TRUE" ]; then
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2022_control_tilefix.py\" failed."
+    err_exit "${message_txt}"
+    print_err_msg_exit "${message_txt}"
+  fi
+  ${USHsrw}/nexus_utils/python/nexus_disable_metemis.py ${DATA}/NEXUS_Config.rc --except ${METEMIS_SECTOR}
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="FATAL ERROR Call to python script \"nexus_disable_metemis.py\" failed."
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
