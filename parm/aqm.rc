@@ -34,7 +34,7 @@ dy_tracer_map_start: 11
 
 ctm_aod: true
 ctm_pmdiag: true
-ctm_photdiag: false
+ctm_photdiag: true
 ctm_depvfile: false
 ctm_stdout: maintask
 
