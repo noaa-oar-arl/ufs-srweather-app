@@ -141,7 +141,7 @@ OFFLINE_SOILNOX="TRUE"
 
 # Set MetEmis sectors for testing
 # Valid options are: "onroad", "livestock", "rwc", "afdust", "all", "none"
-METEMIS_SECTOR="none"
+METEMIS_SECTOR="all"
 
 #
 #-----------------------------------------------------------------------
