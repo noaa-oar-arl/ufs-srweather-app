@@ -113,7 +113,7 @@ fi
 ${USHsrw}/nexus_utils/combine_ant_bio.py "${DATA}/NEXUS_Expt_combined.nc" ${DATA}/NEXUS_Expt.nc
 export err=$?
 if [ $err -ne 0 ]; then
-  message_txt="Call to python script \"NEXUS_Expt_pretty.py\" failed."
+  message_txt="Call to python script \"combine_ant_bio.py\" failed."
   err_exit "${message_txt}"
   print_err_msg_exit "${message_txt}"
 fi
