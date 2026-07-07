@@ -586,7 +586,7 @@ FV3_GFS_v16:
     agrid_vel_rst: False
     d2_bg_k1: 0.2
     d2_bg_k2: 0.0
-    dnats: 6
+    dnats: 7
     delt_max: 0.002
     dz_min: 6
     fv_sg_adj: 450
