@@ -668,12 +668,12 @@ def setup_fv3_namelist(expt_config,debug):
             fv_core_nml_dict.update({"dnats": 1})
     elif ccpp_phys_suite == "FV3_GFS_v16":
         if cpl_aqm:
-            fv_core_nml_dict.update({"hord_tr": 8, "dnats": 5, "nord": 2})
+            fv_core_nml_dict.update({"hord_tr": 8, "dnats": 6, "nord": 2})
         else:
             fv_core_nml_dict.update({"dnats": 1})
     elif ccpp_phys_suite == "FV3_GFS_v17_p8":
         if cpl_aqm:
-            fv_core_nml_dict.update({"dnats": 4})
+            fv_core_nml_dict.update({"dnats": 6})
         else:
             fv_core_nml_dict.update({"dnats": 0})
 

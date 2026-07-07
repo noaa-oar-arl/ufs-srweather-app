@@ -679,11 +679,10 @@
 ###
 # aerosol diagnostics
 ###
-"gfs_dyn",   "pm25at",        "pm25at",      "fv3_history",           "all",  .false.,  "none",  2
-"gfs_dyn",   "pm25ac",        "pm25ac",      "fv3_history",           "all",  .false.,  "none",  2
-"gfs_dyn",   "pm25co",        "pm25co",      "fv3_history",           "all",  .false.,  "none",  2
-"gfs_dyn",   "pm25_tot",      "pm25_tot",    "fv3_history",           "all",  .false.,  "none",  2
-"gfs_phys",  "aext",          "aext",        "fv3_history",           "all",  .false.,  "none",  2
+"gfs_dyn",   "pm25_tot",      "pm25_tot",            "fv3_history",   "all",  .false.,  "none",  2
+"gfs_dyn",   "noy",           "noy",                 "fv3_history",   "all",  .false.,  "none",  2
+"gfs_dyn",   "voc",           "voc",                 "fv3_history",   "all",  .false.,  "none",  2
+"gfs_phys",  "aext",          "aext",                "fv3_history",   "all",  .false.,  "none",  2
 # 2D
 "gfs_phys",  "aod",           "aod",         "fv3_history2d",         "all",  .false.,  "none",  2
 #IVAI:
